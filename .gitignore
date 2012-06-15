@@ -8,3 +8,6 @@
 *.order
 *.symvers
 .tmp_versions/
+*.tar.bz2
+*.tar.gz
+*.tgz

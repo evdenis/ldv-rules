@@ -1,0 +1,17 @@
+before: file("$this")
+{
+#include "ldv.h"
+
+extern int LDV_IN_INTERRUPT;
+}
+
+around: define(on_each_cpu(func,info,wait))
+{
+   ldv_assert(LDV_IN_INTERRUPT==1)
+}
+
+after: call(int on_each_cpu(..))
+{
+   ldv_assert(LDV_IN_INTERRUPT==1)
+}
+
