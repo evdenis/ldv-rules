@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-db>
+	<model id="113_1a">
+		<rule>0113</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0113/model0113_1a-blast.aspect</aspect>
+			<common>./rule0113/model0113_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
+	</model>
+	<model id="115_1a">
+		<rule>0115</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0115/model0115_1a-blast.aspect</aspect>
+			<common>./rule0115/model0115_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
+	</model>
+	<model id="116_1a">
+		<rule>0116</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0116/model0116_1a-blast.aspect</aspect>
+			<common>./rule0116/model0116_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
+	</model>
+</model-db>
