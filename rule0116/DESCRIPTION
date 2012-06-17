@@ -1,1 +1,1 @@
-deadlock in irq handlers
+utilizing spin_lock_irq instead spin_lock in case there same lock is handled in process and interrupt contexts

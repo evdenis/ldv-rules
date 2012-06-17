@@ -13,18 +13,14 @@ static DEFINE_SPINLOCK(lock);
 static irqreturn_t
 dummy_irq_handler1( int irq, void *dev_id )
 {
-   ulong flags;
-   spin_lock_irqsave( &lock, flags );
-   spin_unlock_irqrestore( &lock, flags );
+   spin_lock( &lock );
+   spin_unlock_irq( &lock );
    return IRQ_HANDLED;
 }
 
 static irqreturn_t
 dummy_irq_handler2( int irq, void *dev_id )
 {
-   ulong flags;
-   spin_lock_irqsave( &lock, flags );
-   spin_unlock_irqrestore( &lock, flags );
    return IRQ_HANDLED;
 }
 
@@ -137,6 +133,9 @@ mod_init( void )
    }
    pr_info( "================================================================================\n" );
    
+   spin_lock( &lock );
+   spin_unlock_irq( &lock );
+
    return 0;
 }
 

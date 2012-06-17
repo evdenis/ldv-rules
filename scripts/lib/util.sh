@@ -76,13 +76,20 @@ check_cmd_is_avail?()
 # Check directory write permissions and set a cannonical name
 # check_dir ($var)
 #   $var : name of variable containing directory
-check_dir ()
+check_dir_wr ()
 {
-   [[ ! -d "${!1}" ]] && { error "${!1} 'is not a directory'"; return 1; }	
-   [[ ! -w "${!1}" ]] && { error "${!1} 'is not writable'"; return 2; }	
+   [[ ! -d "${!1}" ]] && { error "${!1} is not a directory"; return 1; }	
+   [[ ! -w "${!1}" ]] && { error "${!1} is not writable"; return 2; }	
    eval $1'="$(readlink -e "${!1}")"'	# get cannonical name
    return 0
 }
+check_dir ()
+{
+   [[ ! -d "${!1}" ]] && { error "${!1} is not a directory"; return 1; }	
+   eval $1'="$(readlink -e "${!1}")"'	# get cannonical name
+   return 0
+}
+
 
 augmented_mkdir ()
 {

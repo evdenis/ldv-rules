@@ -57,7 +57,7 @@ loop do
 	graph.print_dotted_on( {}, dotfile )
 	dotfile.close
 
-	if i == 10
+	if i == 2
 		break
 	end
 	
