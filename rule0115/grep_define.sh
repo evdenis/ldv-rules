@@ -1,8 +1,16 @@
 #!/bin/bash
 
-for i in $(find . -type f -name '*.h')
+# $1 - linux kernel sources directory
+# $2 - macros definitions file
+# $3 - macros names file 
+
+
+rm -f "$2" "$3"
+
+for i in $(find "$1" -type f -name '*.h')
 do
-	sed -ne 's/^[[:space:]]*#define[[:space:]]*\([[:alnum:]_]*\)(.*$/\1/p' $i
-#	cat "$i" | tr -d '\n' | sed -ne 's/^[[:space:]]*#define[[:space:]]*\([[:alnum:]_]*([[:alnum:],_]*)\).*$/\1/gp' >> "./define.txt"'
+	grep -oe '^[[:space:]]*#define[[:space:]]*[[:alnum:]_]*([[:alnum:][:space:]_,]*)' "$i" |
+	sed -e 's/[[:space:]]*#define[[:space:]]*//' | tee -a -i "$2" |
+	sed -ne 's/^\([[:alnum:]_]*\)(.*$/\1/p' >> "$3"
 done
 
