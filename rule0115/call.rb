@@ -42,7 +42,7 @@ end
 graph = RGL::DirectedAdjacencyGraph.new
 root = Node.new("might_sleep")
 graph.add_vertex(root)
-%x[cscope -L -3#{root.id} | cut -d ' ' -f 2].split( ' ' ).each { |v| graph.add_edge(root, Node.new(v)) }
+%x[pushd #{ARGV[0]} > /dev/null; cscope -L -3#{root.id} | cut -d ' ' -f 2; popd > /dev/null;].split( ' ' ).each { |v| graph.add_edge(root, Node.new(v)) }
 root.mark
 
 vrarray = Array.new
@@ -56,8 +56,8 @@ loop do
 	dotfile = File.new("graph.dot#{i-1}", "w")
 	graph.print_dotted_on( {}, dotfile )
 	dotfile.close
-
-	if i == 2
+	
+	if i == ARGV[1].to_i + 1
 		break
 	end
 	
@@ -80,7 +80,7 @@ loop do
 		lgraph = RGL::DirectedAdjacencyGraph.new
 		varray = Array.new
 		lgraph.add_vertex(lroot)
-		%x[cscope -L -3#{lroot.id} | cut -d ' ' -f 2].split( ' ' ).each { |v|
+		%x[pushd #{ARGV[0]} > /dev/null; cscope -L -3#{lroot.id} | cut -d ' ' -f 2; popd > /dev/null;].split( ' ' ).each { |v|
 			varray.push(Node.new(v))
 		}
 		semaphore.synchronize {
@@ -102,6 +102,4 @@ loop do
 	i = i + 1
 end
 STDOUT.sync = false
-
-#graph.write_to_graphic_file
 

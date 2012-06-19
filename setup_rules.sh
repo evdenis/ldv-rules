@@ -10,7 +10,7 @@ source "$util"  || { echo "Can't read util.sh file." 2>&1; exit 1; }
 loadlibrary io out sudo
 
 LDV_DIR=${LDV_DIR:-"/opt/ldv/"}
-kr_dir="${LDV_DIR}/kernel-rules/"
+kr_dir="${LDV_DIR}/kernel-rules/files/"
 
 check_dir kr_dir || { error "Please set up LDV_DIR variable."; exit 1; }
 

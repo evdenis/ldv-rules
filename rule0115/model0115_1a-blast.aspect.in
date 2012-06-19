@@ -1,0 +1,7 @@
+before: file("$this")
+{
+#include "ldv.h"
+
+extern int LDV_IN_INTERRUPT;
+}
+
