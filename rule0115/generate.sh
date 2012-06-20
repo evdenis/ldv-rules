@@ -36,7 +36,7 @@ for func in $(./intersect.sh "graph.dot$lev" "$inline_names")
 do
 	while read i
 	do
-		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_asssert(LDV_IN_INTERRUPT==1);\n}\n" >> model0115_1a-blast.aspect
+		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_asssert(LDV_IN_INTERRUPT == 2);\n}\n" >> model0115_1a-blast.aspect
 	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" | sort | uniq )
 done
 
@@ -46,8 +46,8 @@ for macros in $(./intersect.sh "graph.dot$lev" "$macros_names")
 do
 	while read i
 	do
-		#echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\tldv_assert(LDV_IN_INTERRUPT==1)\n}\n" >> model0115_1a-blast.aspect
-		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_assert(LDV_IN_INTERRUPT==1); 0 })\n}\n" >> model0115_1a-blast.aspect
+		#echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\tldv_assert(LDV_IN_INTERRUPT==2)\n}\n" >> model0115_1a-blast.aspect
+		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_assert(LDV_IN_INTERRUPT == 2); 0 })\n}\n" >> model0115_1a-blast.aspect
 	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" | tr -d ' ' | sort | uniq )
 done
 

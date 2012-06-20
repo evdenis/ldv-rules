@@ -9,31 +9,31 @@ extern int LDV_IN_INTERRUPT;
 
 around: define(on_each_cpu(func,info,wait))
 {
-   ldv_assert(LDV_IN_INTERRUPT==1)
+   ldv_assert(LDV_IN_INTERRUPT == 2)
 }
 
 after: call(int on_each_cpu(..))
 {
-   ldv_assert(LDV_IN_INTERRUPT==1);
+   ldv_assert(LDV_IN_INTERRUPT == 2);
 }
 
 around: define(raw_spin_lock(lock))
 {
-   ldv_assert(LDV_IN_INTERRUPT==1)
+   ldv_assert(LDV_IN_INTERRUPT == 2)
 }
 
 after: call(static inline spin_lock_irq(..))
 {
-   ldv_assert(LDV_IN_INTERRUPT==1);
+   ldv_assert(LDV_IN_INTERRUPT == 2);
 }
 
 around: define(raw_spin_unlock_irq(lock))
 {
-   ldv_assert(LDV_IN_INTERRUPT==1)
+   ldv_assert(LDV_IN_INTERRUPT == 2)
 }
 
 after: call(static inline spin_unlock_irq(..))
 {
-   ldv_assert(LDV_IN_INTERRUPT==1);
+   ldv_assert(LDV_IN_INTERRUPT == 2);
 }
 
