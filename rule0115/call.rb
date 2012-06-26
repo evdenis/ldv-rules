@@ -1,6 +1,10 @@
 #!/usr/bin/ruby -w
 # -*- coding: utf-8 -*-
 
+#ARGV[0] - linux kernel sources directory
+#ARGV[1] - results store directory
+#ARGV[2] - graph level
+
 require 'rubygems'
 require 'rgl/adjacency'
 require 'rgl/dot'
@@ -53,11 +57,11 @@ i = 1
 STDOUT.sync = true
 loop do
 
-	dotfile = File.new("graph.dot#{i-1}", "w")
+	dotfile = File.new("#{ARGV[1]}/graph.dot#{i-1}", "w")
 	graph.print_dotted_on( {}, dotfile )
 	dotfile.close
 	
-	if i == ARGV[1].to_i + 1
+	if i == ARGV[2].to_i + 1
 		break
 	end
 	

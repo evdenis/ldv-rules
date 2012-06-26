@@ -9,30 +9,44 @@ pushd "$dir" > /dev/null
 	make cscope
 popd > /dev/null
 
-macros_names=$(mktemp)
-macros_definitions=$(mktemp)
+mkdir rule_cache
 
-inline_names=$(mktemp)
-inline_definitions=$(mktemp)
+#macros_names=$(mktemp)
+#macros_definitions=$(mktemp)
+macros_names=./rule_cache/mnames
+macros_definitions=./rule_cache/mdefinitions
+
+#inline_names=$(mktemp)
+#inline_definitions=$(mktemp)
+inline_names=./rule_cache/inames
+inline_definitions=./rule_cache/idefinitions
 
 #export_names=$(mktemp)
 #export_definitions=$(mktemp)
+export_names=./rule_cache/enames
+export_definitions=./rule_cache/edefinitions
 
-./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
-./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
+graph="./rule_cache/graph.dot$lev"
 
-#./extract_export.sh "$dir" "$export_definitions" "$export_names"
+[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
+[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
+[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names"
 
-./call.rb "$dir" "$lev"
+[[ ! -r "$graph" ]] && ./call.rb "$dir" "./rule_cache/" "$lev"
 
 cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
 
-#while read func
-#do
-#done < i_export.txt
-#./intersect.sh graph.dot$lev export.txt > i_export.txt
+for func in $(./intersect.sh "$graph" "$export_names")
+do
+	while read i
+	do
+		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_asssert(LDV_IN_INTERRUPT == 2);\n}\n" >> model0115_1a-blast.aspect
+	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" | sort | uniq )
+done
 
-for func in $(./intersect.sh "graph.dot$lev" "$inline_names")
+#rm -f "$export_names" "$export_definitions"
+
+for func in $(./intersect.sh "$graph" "$inline_names")
 do
 	while read i
 	do
@@ -40,9 +54,9 @@ do
 	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" | sort | uniq )
 done
 
-rm -f "$inline_names" "$inline_definitions"
+#rm -f "$inline_names" "$inline_definitions"
 
-for macros in $(./intersect.sh "graph.dot$lev" "$macros_names")
+for macros in $(./intersect.sh "$graph" "$macros_names")
 do
 	while read i
 	do
@@ -51,5 +65,5 @@ do
 	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" | tr -d ' ' | sort | uniq )
 done
 
-rm -f "$macros_names" "$macros_definitions"
+#rm -f "$macros_names" "$macros_definitions"
 

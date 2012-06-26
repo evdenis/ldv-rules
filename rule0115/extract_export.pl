@@ -14,12 +14,12 @@ while ( <> ) {
 	(?<fdecl>
 		#[^\(\)\{\}\[\];,\/\\\'\"#><\.]+ # declarations before function name
 		(?<decl>
-			(?<!
-				\#endif
-			)
-			(?<!
-				\#else
-			)
+#			(?<!
+#				\#endif
+#			)
+#			(?<!
+#				\#else
+#			)
 			#(?<!
 			#	\#ifdef  #Variable-lenght lookbehid is not supported
 			#)
@@ -30,7 +30,8 @@ while ( <> ) {
 			#	\#elif   #Variable-lenght lookbehind is not supported
 			#)
 			#[\w \s\\\*]
-			\#?[\w \s\\\*\(\)] #Workaround for look-behind
+#			\#?[\w \s\\\*\(\)] #Workaround for look-behind
+			[\w \s\\\*\(\)]
 		)+
 		(?<fname>\w+)        # function name
 		\s*                  # spaces between name and arguments
@@ -57,11 +58,11 @@ while ( <> ) {
 		my $decl = $+{fdecl};
 		
 		#Dirty workaround for look-behind. Comments not supported. Multiline defines not supported.
-		$decl =~ s/^[ \t]*\#ifdef[ \t]+\w+[ \t]*$//gm;
-		$decl =~ s/^[ \t]*\#ifndef[ \t]+\w+[ \t]*$//gm;
-		$decl =~ s/^[ \t]*\#if[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
-		$decl =~ s/^[ \t]*\#define[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
-		$decl =~ s/^[ \t]*\#undef[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
+#		$decl =~ s/^[ \t]*\#ifdef[ \t]+\w+[ \t]*$//gm;
+#		$decl =~ s/^[ \t]*\#ifndef[ \t]+\w+[ \t]*$//gm;
+#		$decl =~ s/^[ \t]*\#if[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
+#		$decl =~ s/^[ \t]*\#define[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
+#		$decl =~ s/^[ \t]*\#undef[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
 		
 		$decl =~ s/\n/ /g;
 		$decl =~ s/^[ \t]*$//g;
