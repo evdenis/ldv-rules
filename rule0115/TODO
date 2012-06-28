@@ -4,6 +4,5 @@ Cache intermediate results (like sorting of lists)
 
 Filter:
 macros with arguments in function definitions like __print(1,2)
-nested brackets in __attribute__
 blacklist functions list (with commentaries), for example kmalloc have its own rule; get_online_cpus() currently not supported
 

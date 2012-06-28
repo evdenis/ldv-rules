@@ -19,7 +19,8 @@ cat "$fdefine" | sort | uniq > "$tmp"
 cp -f "$tmp" "$fdefine"
 
 #attribute filter
-perl -n -e 's/__attribute__[ \t]*\(\([^\)]*\)\)[ \t]*//g && print' "$file" > "$tmp"
+perl -n -e 's/__attribute__[ \t]*\((?<b>\((?:[^\(\)]|(?&b))*\))\)[ \t]*//g; print' "$file" > "$tmp"
+
 
 #macros filter construction
 filter=''
