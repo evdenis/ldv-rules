@@ -3,5 +3,6 @@ before: file("$this")
 #include "../ldv.h"
 
 extern int LDV_IN_INTERRUPT;
+static void check_in_interrupt( void );
 }
 

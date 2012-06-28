@@ -32,6 +32,9 @@ graph="./rule_cache/graph.dot$lev"
 [[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
 [[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names"
 
+./filter.sh "$dir" "$export_definitions"
+./filter.sh "$dir" "$inline_definitions"
+
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "./rule_cache/" "$lev"
 
 cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
@@ -40,7 +43,7 @@ for func in $(./intersect.sh "$graph" "$export_names")
 do
 	while read i
 	do
-		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_asssert(LDV_IN_INTERRUPT == 2);\n}\n" >> model0115_1a-blast.aspect
+		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect
 	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" | sort | uniq )
 done
 
@@ -50,7 +53,7 @@ for func in $(./intersect.sh "$graph" "$inline_names")
 do
 	while read i
 	do
-		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_asssert(LDV_IN_INTERRUPT == 2);\n}\n" >> model0115_1a-blast.aspect
+		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect
 	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" | sort | uniq )
 done
 
@@ -60,8 +63,7 @@ for macros in $(./intersect.sh "$graph" "$macros_names")
 do
 	while read i
 	do
-		#echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\tldv_assert(LDV_IN_INTERRUPT==2)\n}\n" >> model0115_1a-blast.aspect
-		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_assert(LDV_IN_INTERRUPT == 2); 0 })\n}\n" >> model0115_1a-blast.aspect
+		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0 })\n}\n" >> model0115_1a-blast.aspect
 	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" | tr -d ' ' | sort | uniq )
 done
 

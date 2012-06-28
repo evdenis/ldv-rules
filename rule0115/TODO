@@ -4,3 +4,5 @@ __dev_init
 __iomem
 __xipran
 asmlinkage
+
+replace extract .sh scripts with perl ones (more reliable)
