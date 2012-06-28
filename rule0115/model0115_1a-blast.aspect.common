@@ -1,10 +1,10 @@
 after: file("$this")
 {
 
-static void
+void
 check_in_interrupt( void )
 {
-   ldv_assert( LDV_IN_INTERRUPT == 2 );
+   ldv_assert( LDV_IN_INTERRUPT == 1 );
 }
 
 }
