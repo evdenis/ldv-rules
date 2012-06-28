@@ -35,7 +35,7 @@ while ( <> ) {
 		)+
 		(?<fname>\w+)        # function name
 		\s*                  # spaces between name and arguments
-		\([\w\s,\*]*?\)      # arguments
+		\([\w\s,\*]+\)      # arguments
 	)
 	\s*                  # spaces between arguments and function body
 	(?<fbody>                    # function body group

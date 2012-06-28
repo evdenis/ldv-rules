@@ -8,7 +8,7 @@ static void check_in_interrupt( void );
 
 around: define(on_each_cpu(func,info,wait))
 {
-   ({ check_in_interrupt(); 0 })
+   ({ check_in_interrupt(); 0; })
 }
 
 after: call(int on_each_cpu(..))
@@ -18,7 +18,7 @@ after: call(int on_each_cpu(..))
 
 around: define(raw_spin_lock(lock))
 {
-   ({ check_in_interrupt(); 0 })
+   ({ check_in_interrupt(); 0; })
 }
 
 after: call(static inline void spin_lock_irq(..))
@@ -28,7 +28,7 @@ after: call(static inline void spin_lock_irq(..))
 
 around: define(raw_spin_unlock_irq(lock))
 {
-   ({ check_in_interrupt(); 0 })
+   ({ check_in_interrupt(); 0; })
 }
 
 after: call(static inline void spin_unlock_irq(..))

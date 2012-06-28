@@ -63,7 +63,7 @@ for macros in $(./intersect.sh "$graph" "$macros_names")
 do
 	while read i
 	do
-		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0 })\n}\n" >> model0115_1a-blast.aspect
+		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115_1a-blast.aspect
 	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" | tr -d ' ' | sort | uniq )
 done
 

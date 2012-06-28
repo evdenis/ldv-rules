@@ -1,8 +1,9 @@
-__attribute__
-macros in function definitions
-__dev_init
-__iomem
-__xipran
-asmlinkage
+Global:
+Rewrite all in perl with caching and multithreading
+Cache intermediate results (like sorting of lists)
 
-replace extract .sh scripts with perl ones (more reliable)
+Filter:
+macros with arguments in function definitions like __print(1,2)
+nested brackets in __attribute__
+blacklist functions list (with commentaries), for example kmalloc have its own rule; get_online_cpus() currently not supported
+

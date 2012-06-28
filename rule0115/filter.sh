@@ -11,7 +11,7 @@ tmp="$(mktemp)"
 fdefine="./rule_cache/mfilter"
 
 #configuration
-filter_step=30
+filter_step=1000
 
 [[ ! -r "$fdefine" ]] && ./extract_macros_filter.sh "$dir" "$fdefine"
 
@@ -25,7 +25,7 @@ perl -n -e 's/__attribute__[ \t]*\(\([^\)]*\)\)[ \t]*//g && print' "$file" > "$t
 filter=''
 for (( i=1; i<$(cat "$fdefine" | wc -l); i+=$filter_step ))
 do
-	filter=$(tail -n +${i} "$fdefine" | head -n $filter_step | tr '\n' '|' | sed -e 's/|/\\|/g' | sed -e 's/\\|$//')
+	filter=$(tail -n +${i} "$fdefine" | head -n $filter_step | sed -e 's/^/[[:space:]]/' -e 's/$/[[:space:]]/' | tr '\n' '|' | sed -e 's/|/\\|/g' | sed -e 's/\\|$//')
 	if [[ -n "$filter" ]]
 	then
 		sed -i -e "s/$filter//g" "$tmp"
