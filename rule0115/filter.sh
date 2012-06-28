@@ -26,7 +26,7 @@ perl -n -e 's/__attribute__[ \t]*\((?<b>\((?:[^\(\)]|(?&b))*\))\)[ \t]*//g; prin
 filter=''
 for (( i=1; i<$(cat "$fdefine" | wc -l); i+=$filter_step ))
 do
-	filter=$(tail -n +${i} "$fdefine" | head -n $filter_step | sed -e 's/^/[[:space:]]/' -e 's/$/[[:space:]]/' | tr '\n' '|' | sed -e 's/|/\\|/g' | sed -e 's/\\|$//')
+   filter=$(tail -n +${i} "$fdefine" | head -n $filter_step | sed -e 's/^/\\([^[:alnum:]_]\\|^\\)/' -e 's/$/[^[:alnum:]_]/' | tr '\n' '|' | sed -e 's/|/\\|/g' | sed -e 's/\\|$//')
 	if [[ -n "$filter" ]]
 	then
 		sed -i -e "s/$filter//g" "$tmp"
