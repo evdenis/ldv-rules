@@ -5,4 +5,12 @@ Cache intermediate results (like sorting of lists)
 Filter:
 macros with arguments in function definitions like __print(1,2)
 blacklist functions list (with commentaries), for example kmalloc have its own rule; get_online_cpus() currently not supported
+NORET_TYPE problem
+__percpu in compile.h problem
+__must_check problem
+__iomem problem
+__init_refok problem
+*macros
+macros*
+typedefs in funtion definition problem
 
