@@ -35,6 +35,21 @@ graph="./rule_cache/graph.dot$lev"
 ./filter.sh "$dir" "$export_definitions"
 ./filter.sh "$dir" "$inline_definitions"
 
+set +x
+
+while read macro
+do
+   sed -i -e "/$macro/d" "$macros_names"
+done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./macros.blacklist )
+
+while read func
+do
+   sed -i -e "/$func/d" "$inline_names"
+   sed -i -e "/$func/d" "$export_names"
+done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist )
+
+set -x
+
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "./rule_cache/" "$lev"
 
 cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
