@@ -39,6 +39,8 @@ graph="./rule_cache/graph.dot$lev"
 
 cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
 
+set +x
+
 for func in $(./intersect.sh "$graph" "$export_names")
 do
 	while read i

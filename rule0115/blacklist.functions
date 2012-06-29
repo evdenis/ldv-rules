@@ -1,0 +1,6 @@
+#bool
+#ssize_t
+#pfn_t
+
+#personal rule
+kmalloc

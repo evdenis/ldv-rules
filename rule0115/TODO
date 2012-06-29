@@ -1,14 +1,12 @@
 Global:
 Rewrite all in perl with caching and multithreading
 Cache intermediate results (like sorting of lists)
+Macros aliases without args (__pfn_to_phys)?
 
 Filter:
 macros with arguments in function definitions like __print(1,2)
 blacklist functions list (with commentaries), for example kmalloc have its own rule; get_online_cpus() currently not supported
-NORET_TYPE problem (partially solved) Not in filter list
-__percpu in compile.h problem Not in filter list
-__must_check problem Not in filter list
-__iomem problem Not in filter list
-__init_refok problem Not in filter list
 typedefs in funtion definition problem
+MACROS* - in function definition - must be removed
+MACROS (..) - in function definition - must be preserved
 

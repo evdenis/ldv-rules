@@ -11,13 +11,3 @@ put_online_cpus
 snd_info_minor_register
 snd_info_minor_unregister
 
-#bool returning
-cancel_work_sync
-cgroup_lock_live_group
-flush_work
-flush_work_sync
-#ssize_t
-#pfn_t
-
-#personal rule
-kmalloc

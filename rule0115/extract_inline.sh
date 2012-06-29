@@ -12,3 +12,6 @@ do
 	./extract_inline.pl "$i" | tee >(sed -ne 'p;n' >> "$3") >(sed -ne 'g;n;p' >> "$2") > /dev/null
 done
 
+sed -i -e 's/\*[[:space:]]\+\*/**/g' "$2"
+sed -i -e 's/\([[:alnum:]_]\+\)[[:space:]]\+(/\1(/' "$2"
+
