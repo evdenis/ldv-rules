@@ -12,3 +12,6 @@ static inline __clear_user
 static inline __copy_to_user
 
 Better dynamic blacklist support - exclude only from definitions file
+
+Add .dynamic in rule_cache
+Add .filtered in rule_cache

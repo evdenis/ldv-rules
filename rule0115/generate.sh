@@ -9,7 +9,7 @@ pushd "$dir" > /dev/null
 	make cscope
 popd > /dev/null
 
-mkdir rule_cache
+mkdir -p rule_cache
 
 #macros_names=$(mktemp)
 #macros_definitions=$(mktemp)
@@ -49,12 +49,12 @@ echo "Inline problems:" | tee ./err.log
 sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" | tee -a ./err.log ./inline.blacklist.dynamic
 
 #Filtering bug. Please, don't remove this check.
-echo "Export problems:" | tee ./err.log
-sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definition" | tee -a ./err.log ./export.blacklist.dynamic
+echo "Export problems:" | tee -a ./err.log
+sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a ./err.log ./export.blacklist.dynamic
 
 #Aspectator bug. This check should be removed as soon as bug will be fixed.
 echo "Macros problems:" | tee -a ./err.log
-sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definition" | tee -a ./err.log ./macros.blacklist.dynamic
+sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a ./err.log ./macros.blacklist.dynamic
 
 set +x
 
@@ -72,9 +72,9 @@ do
 done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
 
 tmp="$(mktemp)"
-comm -1 "$inline_definition" ./.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$inline_definition"
-comm -1 "$export_definition" ./.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$export_definition"
-comm -1 "$macros_definition" ./.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$macros_definition"
+comm -1 "$inline_definitions" ./inline.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$inline_definitions"
+comm -1 "$export_definitions" ./export.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$export_definitions"
+comm -1 "$macros_definitions" ./macros.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$macros_definitions"
 rm -f "$tmp"
 unset tmp
 
