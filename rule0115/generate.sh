@@ -36,17 +36,47 @@ graph="./rule_cache/graph.dot$lev"
 ./filter.sh "$dir" "$inline_definitions"
 
 set +x
+for i in "$inline_definitions" "$inline_names" "$macros_definitions" "$macros_names" "$export_definitions" "$export_names"
+do
+   sort -bi -u -o "$i" "$i"
+done
+set -x
 
+rm -f ./inline.blacklist.dynamic ./export.blacklist.dynamic ./macros.blacklist.dynamic
+
+#Filtering bug. Please, don't remove this check.
+echo "Inline problems:" | tee ./err.log
+sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" | tee -a ./err.log ./inline.blacklist.dynamic
+
+#Filtering bug. Please, don't remove this check.
+echo "Export problems:" | tee ./err.log
+sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definition" | tee -a ./err.log ./export.blacklist.dynamic
+
+#Aspectator bug. This check should be removed as soon as bug will be fixed.
+echo "Macros problems:" | tee -a ./err.log
+sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definition" | tee -a ./err.log ./macros.blacklist.dynamic
+
+set +x
+
+#TODO: detect from which list to exclude. Or just use comm
 while read macro
 do
    sed -i -e "/$macro/d" "$macros_names"
-done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./macros.blacklist )
+done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./macros.blacklist.static )
 
+#TODO: detect from which list to exclude. Or just use comm
 while read func
 do
    sed -i -e "/$func/d" "$inline_names"
    sed -i -e "/$func/d" "$export_names"
-done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist )
+done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
+
+tmp="$(mktemp)"
+comm -1 "$inline_definition" ./.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$inline_definition"
+comm -1 "$export_definition" ./.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$export_definition"
+comm -1 "$macros_definition" ./.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$macros_definition"
+rm -f "$tmp"
+unset tmp
 
 set -x
 
@@ -61,7 +91,7 @@ do
 	while read i
 	do
 		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect
-	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" | sort | uniq )
+	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
 done
 
 #rm -f "$export_names" "$export_definitions"
@@ -71,7 +101,7 @@ do
 	while read i
 	do
 		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect
-	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" | sort | uniq )
+	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
 done
 
 #rm -f "$inline_names" "$inline_definitions"
@@ -81,7 +111,7 @@ do
 	while read i
 	do
 		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115_1a-blast.aspect
-	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" | tr -d ' ' | sort | uniq )
+	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
 done
 
 #rm -f "$macros_names" "$macros_definitions"

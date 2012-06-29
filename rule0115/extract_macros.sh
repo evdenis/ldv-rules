@@ -12,3 +12,5 @@ do
 	./extract_macros.pl "$i" | tee >(sed -ne 'p;n' >> "$3") >(sed -ne 'g;n;p' >> "$2") > /dev/null
 done
 
+sed -i -e 's/[[:space:]]\+//g' "$2"
+

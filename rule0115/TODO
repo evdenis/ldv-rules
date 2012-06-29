@@ -11,3 +11,4 @@ static inline __copy_from_user
 static inline __clear_user
 static inline __copy_to_user
 
+Better dynamic blacklist support - exclude only from definitions file

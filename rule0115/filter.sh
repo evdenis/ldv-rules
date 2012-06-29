@@ -21,9 +21,10 @@ if [[ ! -r "$filter_define" ]]
 then
    cat ./filter.preset > "$filter_define"
    #FIXME: explicit naming
-   grep -h -e '^__[a-z][a-z_]*$' "$file_define" ./rule_cache/mnames >> "$filter_define"
-   cat "$filter_define" | sort | uniq > "$tmp"
-   cp -f "$tmp" "$filter_define"
+   #TODO: proper filtering of function-like macros
+   #grep -h -e '^__[a-z][a-z_]*$' "$file_define" ./rule_cache/mnames >> "$filter_define"
+   grep -h -e '^__[a-z][a-z_]*$' "$file_define" >> "$filter_define"
+   sort -bi -u -o "$filter_define" "$filter_define"
 fi
 
 
