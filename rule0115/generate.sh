@@ -72,9 +72,9 @@ do
 done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
 
 tmp="$(mktemp)"
-comm -1 "$inline_definitions" ./inline.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$inline_definitions"
-comm -1 "$export_definitions" ./export.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$export_definitions"
-comm -1 "$macros_definitions" ./macros.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$macros_definitions"
+comm -23 "$inline_definitions" ./inline.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$inline_definitions"
+comm -23 "$export_definitions" ./export.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$export_definitions"
+comm -23 "$macros_definitions" ./macros.blacklist.dynamic > "$tmp"; cp -f "$tmp" "$macros_definitions"
 rm -f "$tmp"
 unset tmp
 
