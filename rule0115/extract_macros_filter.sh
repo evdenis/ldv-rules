@@ -7,10 +7,7 @@
 
 rm -f "$2"
 
-for i in $(find "$1" -type f -name '*.h')
-do
-	grep -oe '^[[:space:]]*#[[:space:]]*define[[:space:]]\+[[:alnum:]_]\+[[:space:]]' "$i" |
-	sed -e 's/[[:space:]]*#[[:space:]]*define[[:space:]]\+//' |
-	sed -ne 's/^\([[:alnum:]_]\+\).*$/\1/p' >> "$2"
-done
+grep -r -h -I --include '*.h' -oe '^[[:space:]]*#[[:space:]]*define[[:space:]]\+[[:alnum:]_]\+[[:space:]]' "$1" |
+sed -e 's/[[:space:]]*#[[:space:]]*define[[:space:]]\+//' |
+sed -ne 's/^\([[:alnum:]_]\+\).*$/\1/p' >> "$2"
 
