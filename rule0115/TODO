@@ -2,11 +2,10 @@ Global:
 Rewrite all in perl with caching and multithreading
 Cache intermediate results (like sorting of lists)
 Macros aliases without args (__pfn_to_phys)?
-EXtract EXPORT_SYMBOL_GPL separate
+EXtract EXPORT_SYMBOL_GPL separately
 
 Filter:
 macros with arguments in function definitions like __print(1,2)
-typedefs in funtion definition problem
 
 static inline __copy_from_user
 static inline __clear_user
@@ -14,5 +13,3 @@ static inline __copy_to_user
 
 Better dynamic blacklist support - exclude only from definitions file
 
-Add .dynamic in rule_cache
-Add .filtered in rule_cache

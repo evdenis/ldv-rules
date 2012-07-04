@@ -2,9 +2,11 @@
 
 # $1 - linux kernel sources
 # $2 - file to filter
+# $3 - output
 
 dir="$1"
 file="$2"
+out="${3:-${file}}"
 
 tmp="$(mktemp)"
 #file_define="$(mktemp)"
@@ -48,6 +50,6 @@ sed -i -e 's/^[[:space:]]\+//' "$tmp"
 sed -i -e 's/\*[[:space:]]\+\*/**/g' "$tmp"
 sed -i -e 's/\([[:alnum:]_]\+\)[[:space:]]\+(/\1(/' "$tmp"
 
-cp -f "$tmp" "$file"
+cp -f "$tmp" "$out"
 rm -f "$tmp"
 
