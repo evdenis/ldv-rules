@@ -30,6 +30,7 @@ fi
 
 #attribute filter
 perl -n -e 's/__attribute__[ \t]*\((?<b>\((?:[^\(\)]|(?&b))*\))\)[ \t]*//g; print' "$file" > "$tmp"
+sed -i -e 's/asmlinkage//g' "$tmp"
 
 #macros filter construction
 filter=''
