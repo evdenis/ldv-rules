@@ -52,6 +52,8 @@ sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:
 echo "Export problems:" | tee -a ./err.log
 sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a ./err.log ./export.blacklist.dynamic
 
+#Aspectator bug. typedefs
+grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a ./err.log ./export.blacklist.dynamic
 #Aspectator bug. This check should be removed as soon as bug will be fixed.
 echo "Macros problems:" | tee -a ./err.log
 sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a ./err.log ./macros.blacklist.dynamic
