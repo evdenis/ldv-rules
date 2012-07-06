@@ -7,9 +7,9 @@ EXtract EXPORT_SYMBOL_GPL separately
 Filter:
 macros with arguments in function definitions like __print(1,2)
 
-static inline __copy_from_user
-static inline __clear_user
-static inline __copy_to_user
+static inline __copy_from_user -- __kernel_size_t problem ./arch/sh/include/asm/posix_types_64.h
+static inline __clear_user -- same here
+static inline __copy_to_user -- same here
 
 Better dynamic blacklist support - exclude only from definitions file
 
