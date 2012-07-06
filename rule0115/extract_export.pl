@@ -31,11 +31,19 @@ while ( <> ) {
 			#)
 			#[\w \s\\\*]
 #			\#?[\w \s\\\*\(\)] #Workaround for look-behind
-			[\w \s\\\*\(\)]
+			[\w \t\s\\\*\(\)\,]
 		)+
 		(?<fname>\w+)        # function name
 		\s*                  # spaces between name and arguments
-		\([\w\s,\*]+\)      # arguments
+      (?<fargs>
+         \(
+          (?:
+             [^\(\)]
+             |
+             (?&fargs)
+          )+
+         \)
+      )
 	)
 	\s*                  # spaces between arguments and function body
 	(?<fbody>                    # function body group
@@ -68,7 +76,7 @@ while ( <> ) {
 		$decl =~ s/^[ \t]*$//g;
 		$decl =~ s/^[ \t]*//g;
 		$decl =~ s/\s{2,}/ /g;
-		$decl =~ s/\([^)]*\)$/(..)/;
+		$decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
 		say $decl;
 	}
 }
