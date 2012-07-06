@@ -1,0 +1,5 @@
+module_address
+audit_inode_child
+bool
+__kernel_ssize_t
+__kernel_size_t

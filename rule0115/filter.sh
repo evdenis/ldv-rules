@@ -27,6 +27,7 @@ then
    #grep -h -e '^__[a-z][a-z_]*$' "$file_define" ./rule_cache/mnames >> "$filter_define"
    grep -h -e '^__[a-z][a-z_]*$' "$file_define" >> "$filter_define"
    sort -bi -u -o "$filter_define" "$filter_define"
+   comm -23 "$filter_define" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define"
 fi
 
 
