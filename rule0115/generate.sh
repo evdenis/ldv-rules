@@ -33,9 +33,11 @@ export_blacklist=./rule_cache/export.blacklist.dynamic
 
 graph="./rule_cache/graph.dot$lev"
 
-[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
-[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
-[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names"
+[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names" &
+[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names" &
+[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names" &
+
+wait
 
 ./filter.sh "$dir" "$export_definitions" "${export_definitions/%.raw/.filtered}"
 ./filter.sh "$dir" "$inline_definitions" "${inline_definitions/%.raw/.filtered}"
@@ -43,13 +45,19 @@ graph="./rule_cache/graph.dot$lev"
 export_definitions="${export_definitions/%.raw/.filtered}"
 inline_definitions="${inline_definitions/%.raw/.filtered}"
 
+set +x
+
 for i in inline_definitions inline_names macros_definitions macros_names export_definitions export_names
 do
-   sort -bi -u -o "${!i/%.raw/.filtered}" "${!i}"
+   sort -bi -u -o "${!i/%.raw/.filtered}" "${!i}" &
    eval $i="${!i/%.raw/.filtered}"
 done
 
+wait
+
 rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
+
+set -x
 
 #Filtering bug. Please, don't remove this check.
 echo "Inline problems:" | tee "$err_log"
@@ -60,7 +68,7 @@ echo >> "$err_log"
 echo "Export problems:" | tee -a "$err_log"
 sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
 
-#Aspectator bug. typedefs
+#Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
 grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
 echo >> "$err_log"
 
@@ -82,6 +90,13 @@ do
    sed -i -e "/$func/d" "$inline_names"
    sed -i -e "/$func/d" "$export_names"
 done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
+
+for i in "$inline_blacklist" "$export_blacklist" "$macros_blacklist"
+do
+   sort -bi -u -o "$i" "$i" &
+done
+
+wait
 
 tmp="$(mktemp)"
 comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp" && cp -f "$tmp" "$inline_definitions"
