@@ -54,6 +54,7 @@ rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 #Filtering bug. Please, don't remove this check.
 echo "Inline problems:" | tee "$err_log"
 sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" | tee -a "$err_log" "$inline_blacklist"
+echo >> "$err_log"
 
 #Filtering bug. Please, don't remove this check.
 echo "Export problems:" | tee -a "$err_log"
@@ -61,6 +62,8 @@ sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(c
 
 #Aspectator bug. typedefs
 grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
+echo >> "$err_log"
+
 #Aspectator bug. This check should be removed as soon as bug will be fixed.
 echo "Macros problems:" | tee -a "$err_log"
 sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist"
@@ -81,9 +84,9 @@ do
 done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
 
 tmp="$(mktemp)"
-comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp"; cp -f "$tmp" "$inline_definitions"
-comm -23 "$export_definitions" "$export_blacklist" > "$tmp"; cp -f "$tmp" "$export_definitions"
-comm -23 "$macros_definitions" "$macros_blacklist" > "$tmp"; cp -f "$tmp" "$macros_definitions"
+comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp" && cp -f "$tmp" "$inline_definitions"
+comm -23 "$export_definitions" "$export_blacklist" > "$tmp" && cp -f "$tmp" "$export_definitions"
+comm -23 "$macros_definitions" "$macros_blacklist" > "$tmp" && cp -f "$tmp" "$macros_definitions"
 rm -f "$tmp"
 unset tmp
 
