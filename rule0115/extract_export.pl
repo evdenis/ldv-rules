@@ -33,28 +33,32 @@ while ( <> ) {
 #			\#?[\w \s\\\*\(\)] #Workaround for look-behind
 			[\w \t\s\\\*\(\)\,]
 		)+
-		(?<fname>\w+)        # function name
-		\s*                  # spaces between name and arguments
-      (?<fargs>
-         \(
-          (?:
-             [^\(\)]
-             |
-             (?&fargs)
-          )+
-         \)
+      (?>
+		   (?<fname>\w+)        # function name
+		   \s*                  # spaces between name and arguments
+         (?<fargs>
+            \(
+             (?:
+                [^\(\)]
+                |
+                (?&fargs)
+             )+
+            \)
+         )
       )
 	)
 	\s*                  # spaces between arguments and function body
-	(?<fbody>                    # function body group
-		\{                # begin of function body
-		(?:               # recursive pattern
-			[^\{\}]
-			|
-			(?&fbody)
-		)*
-		\}                # end of function body
-	)
+   (?>
+	   (?<fbody>                    # function body group
+		   \{                # begin of function body
+		   (?:               # recursive pattern
+			   [^\{\}]
+			   |
+			   (?&fbody)
+		   )*
+		   \}                # end of function body
+	   )
+   )
 	\s*                  # spaces between function body and EXPORT_SYMBOL_GPL
 	EXPORT_SYMBOL_GPL
 	\(\s*\g{fname}\s*\)      # function name within () brackets
