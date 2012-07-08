@@ -8,7 +8,7 @@ extracted="$(mktemp)"
 
 rm -f "$2" "$3"
 
-for i in $(find "$1" -type f -name '*.[ch]')
+for i in $(find "$1" -type d \( -path '*/Documentation/*' -o -path '*/firmware/*' -o -path '*/samples/*' -o -path '*/scripts/*' -o -path '*/tools/*' \)  -prune -o -type f -name '*.[ch]' -print)
 do
 	cat "$i" | ./remove_cmnts.pl | ./remove_macros.pl | ./extract_export.pl >> "$extracted"
 done
