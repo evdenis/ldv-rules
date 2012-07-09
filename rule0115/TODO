@@ -5,3 +5,5 @@ EXtract EXPORT_SYMBOL_GPL separately
 
 Better dynamic blacklist support - exclude only from definitions file
 
+Check static inline extraction terminator - ')' or '{' and not ';'.
+

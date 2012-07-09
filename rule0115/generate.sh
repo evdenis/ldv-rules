@@ -10,14 +10,14 @@ then
    ./remove_printf_and_aligned_macros.sh "$dir"
    if [[ -d "$dir/.git/" ]]
    then
-      git stash save > /dev/null
+      git stash save > /dev/null 2>&1
    fi
    pushd "$dir" > /dev/null
 	   make cscope
       if [[ -d .git/ ]]
       then
          git checkout . > /dev/null
-         git stash pop > /dev/null
+         git stash pop > /dev/null 2>&1
       fi
    popd > /dev/null
 fi
