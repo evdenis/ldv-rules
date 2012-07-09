@@ -10,9 +10,9 @@ out="${3:-${file}}"
 
 tmp="$(mktemp)"
 #file_define="$(mktemp)"
-file_define="./rule_cache/macros_without_args"
+file_define="./rule_cache/macros_wa"
 filter_define_wa="./rule_cache/macros_wa_filter"
-filter_define="./rule_cache/macros_filter_wa"
+filter_define="./rule_cache/macros_filter"
 
 #configuration
 filter_step=1000
