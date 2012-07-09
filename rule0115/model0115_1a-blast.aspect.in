@@ -6,3 +6,10 @@ extern int LDV_IN_INTERRUPT;
 void check_in_interrupt( void );
 }
 
+/*
+around: define( might_sleep() )
+{
+   check_in_interrupt()
+}
+*/
+
