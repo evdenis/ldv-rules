@@ -5,9 +5,22 @@ dir="$2"
 
 # cd desire_kernel_dir
 
-pushd "$dir" > /dev/null
-	make cscope
-popd > /dev/null
+if [[ ! ( -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ) ]]
+then
+   ./remove_printf_and_aligned_macros.sh "$dir"
+   if [[ -d "$dir/.git/" ]]
+   then
+      git stash save > /dev/null
+   fi
+   pushd "$dir" > /dev/null
+	   make cscope
+      if [[ -d .git/ ]]
+      then
+         git checkout . > /dev/null
+         git stash pop > /dev/null
+      fi
+   popd > /dev/null
+fi
 
 mkdir -p rule_cache
 
