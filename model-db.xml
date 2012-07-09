@@ -31,15 +31,19 @@
 	<model id="116_1a">
 		<rule>0116</rule>
 		<status>public</status>
-		<kind>aspect</kind>
+		<kind>plain</kind>
 		<error>LDV_ERROR</error>
 		<engine>blast</engine>
-		<description></description>
+      <description></description>
+      <hints>
+         <rerouter>
+            <map></map>
+            <placeholder>TEMPLATE</placeholder>
+         </rerouter>
+      </hints>
 		<files>
-			<aspect>./rule0116/model0116_1a-blast.aspect</aspect>
-			<common>./rule0116/model0116_1a-blast.aspect.common</common>
+			<common>./rule0116/model0116_1a-blast.common</common>
 			<config>./config-tracers.h</config>
 		</files>
-		<hints></hints>
 	</model>
 </model-db>
