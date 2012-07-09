@@ -25,7 +25,7 @@ then
    cat ./filter.preset > "$filter_define_wa"
    #FIXME: explicit naming
    grep -h -e '^__[a-z][a-z_]*$' "$file_define" >> "$filter_define_wa"
-   sort -bi -u -o "$filter_define_wa" "$filter_define_wa"
+   sort -u -o "$filter_define_wa" "$filter_define_wa"
    comm -23 "$filter_define_wa" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define_wa"
 fi
 
@@ -35,7 +35,7 @@ then
    cat ./filter.preset > "$filter_define"
    #FIXME: explicit naming
    grep -h -e '^__[a-z][a-z_]*$' "./rule_cache/mnames.raw" >> "$filter_define"
-   sort -bi -u -o "$filter_define" "$filter_define"
+   sort -u -o "$filter_define" "$filter_define"
    comm -23 "$filter_define" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define"
 fi
 

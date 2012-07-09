@@ -49,7 +49,7 @@ set +x
 
 for i in inline_definitions inline_names macros_definitions macros_names export_definitions export_names
 do
-   sort -bi -u -o "${!i/%.raw/.filtered}" "${!i}" &
+   sort -u -o "${!i/%.raw/.filtered}" "${!i}" &
    eval $i="${!i/%.raw/.filtered}"
 done
 
@@ -83,19 +83,19 @@ set +x
 #TODO: detect from which list to exclude. Or just use comm
 while read macro
 do
-   sed -i -e "/$macro/d" "$macros_names"
+   sed -i -e "/^[[:space:]]*$macro[[:space:]]*$/d" "$macros_names"
 done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./macros.blacklist.static )
 
 #TODO: detect from which list to exclude. Or just use comm
 while read func
 do
-   sed -i -e "/$func/d" "$inline_names"
-   sed -i -e "/$func/d" "$export_names"
+   sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$inline_names"
+   sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$export_names"
 done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
 
 for i in "$inline_blacklist" "$export_blacklist" "$macros_blacklist"
 do
-   sort -bi -u -o "$i" "$i" &
+   sort -u -o "$i" "$i" &
 done
 
 wait
