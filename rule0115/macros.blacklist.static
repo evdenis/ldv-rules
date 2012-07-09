@@ -1,1 +1,2 @@
 #non-argument function-like macros bug. Now - dynamic
+__printf
