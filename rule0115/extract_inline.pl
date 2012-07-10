@@ -54,9 +54,9 @@ while ( <> ) {
       \s*
       #macros as well as comments should be removed
       (
-         \{
+         (\{|\#|\/\/|\/\*)
          |
-         ;(*SKIP)(*FAIL)
+         (*SKIP)(*FAIL)
       )
 	/gmx
 	) {
