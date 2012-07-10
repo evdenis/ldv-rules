@@ -3,21 +3,23 @@
 lev="$1"
 dir="$2"
 
+rdir="$( cd "$( dirname "$0" )" && pwd )"
 # cd desire_kernel_dir
 
 if [[ ! ( -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ) ]]
 then
-   ./remove_printf_and_aligned_macros.sh "$dir"
-   if [[ -d "$dir/.git/" ]]
-   then
-      git stash save > /dev/null 2>&1
-   fi
    pushd "$dir" > /dev/null
-	   make cscope
+      if [[ -d .git/ ]]
+      then
+         git stash save | grep -q -F 'No local changes to save'
+         git_save=$?
+      fi
+      "${rdir}/remove_printf_and_aligned_macros.sh" .
+      make cscope
       if [[ -d .git/ ]]
       then
          git checkout . > /dev/null
-         git stash pop > /dev/null 2>&1
+         [[ $git_save -ne 0 ]] && git stash pop > /dev/null 2>&1
       fi
    popd > /dev/null
 fi
