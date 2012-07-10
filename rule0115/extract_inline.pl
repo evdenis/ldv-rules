@@ -51,12 +51,13 @@ while ( <> ) {
             )
          )
       )
-#      \s*
-#      (
-#         \{
-#         |
-#         ;(*SKIP)(*FAIL)
-#      )
+      \s*
+      #macros as well as comments should be removed
+      (
+         \{
+         |
+         ;(*SKIP)(*FAIL)
+      )
 	/gmx
 	) {
 		say $+{fname};

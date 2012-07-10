@@ -10,3 +10,5 @@ Check static inline extraction terminator - ')' or '{' and not ';'.
 Remove workarounds after bugfixes in generate.sh
 Remove might_sleep comment in model.common.in
 
+Rewrite cscope index generation procedure - standard is not enought
+
