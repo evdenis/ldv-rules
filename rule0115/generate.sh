@@ -15,7 +15,7 @@ then
          git_save=$?
       fi
       "${rdir}/remove_printf_and_aligned_macros.sh" .
-      make cscope
+      make ALLSOURCE_ARCHS=all cscope
       if [[ -d .git/ ]]
       then
          git checkout . > /dev/null
