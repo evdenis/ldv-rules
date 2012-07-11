@@ -1,14 +1,16 @@
 Global:
-Rewrite all in perl with caching and multithreading
 Macros aliases without args (__pfn_to_phys)?
-EXtract EXPORT_SYMBOL_GPL separately
++EXtract EXPORT_SYMBOL_GPL separately
 
 Better dynamic blacklist support - exclude only from definitions file
-
-Check static inline extraction terminator - ')' or '{' and not ';'.
 
 Remove workarounds after bugfixes in generate.sh
 Remove might_sleep comment in model.common.in
 
 Rewrite cscope index generation procedure - standard is not enought
 
+Massive parallelization of extraction rules
+
+Static inline - only explicit invocation of might_sleep
+
+test typedef - #

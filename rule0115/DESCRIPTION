@@ -1,1 +1,3 @@
 might_sleep in interrupt
+
+To setup rule - run generate.sh
