@@ -37,13 +37,14 @@
       <description></description>
       <hints>
          <rerouter>
-            <map></map>
+            <map>spin_lock</map>
+            <foreach>ldv_init</foreach>
             <placeholder>TEMPLATE</placeholder>
          </rerouter>
       </hints>
 		<files>
-			<common>./rule0116/model0116_1a-blast.common</common>
-			<config>./config-tracers.h</config>
+			<common>./rule0116/model0116_1a-blast.c</common>
+         <config>./rule0116/model0116_1a-config.h</config>
 		</files>
 	</model>
 </model-db>
