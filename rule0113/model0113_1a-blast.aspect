@@ -16,12 +16,32 @@ after: call(int on_each_cpu(..))
    check_in_interrupt();
 }
 
-around: define(raw_spin_lock(lock))
+after: call(static inline void __raw_spin_lock_irq(..))
+{
+   check_in_interrupt();
+}
+
+after: call(void _raw_spin_lock_irq(..))
+{
+   check_in_interrupt();
+}
+
+around: define(raw_spin_lock_irq(lock))
 {
    ({ check_in_interrupt(); 0; })
 }
 
 after: call(static inline void spin_lock_irq(..))
+{
+   check_in_interrupt();
+}
+
+after: call(static inline void __raw_spin_unlock_irq(..))
+{
+   check_in_interrupt();
+}
+
+after: call(void _raw_spin_unlock_irq(..))
 {
    check_in_interrupt();
 }
