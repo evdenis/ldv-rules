@@ -1,3 +1,5 @@
+#include "../engine-blast.h"
+
 #include <linux/kernel.h>
 #include <linux/spinlock.h>
 

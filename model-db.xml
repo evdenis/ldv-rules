@@ -30,7 +30,7 @@
 	</model>
 	<model id="116_1a">
 		<rule>0116</rule>
-		<status>public</status>
+		<status>default</status>
 		<kind>plain</kind>
 		<error>LDV_ERROR</error>
 		<engine>blast</engine>
