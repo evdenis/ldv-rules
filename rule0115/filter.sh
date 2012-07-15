@@ -1,43 +1,21 @@
 #!/bin/bash
 
 # $1 - linux kernel sources
-# $2 - file to filter
-# $3 - output
+# $2 - filter without args file
+# $3 - filter file
+# $4 - file to filter
+# $5 - output
 
 dir="$1"
-file="$2"
-out="${3:-${file}}"
+filter_define_wa="$2"
+filter_define="$3"
+file="$4"
+out="${5:-${file}}"
 
 tmp="$(mktemp)"
-#file_define="$(mktemp)"
-file_define="./rule_cache/macros_wa"
-filter_define_wa="./rule_cache/macros_wa_filter"
-filter_define="./rule_cache/macros_filter"
 
 #configuration
 filter_step=1000
-
-[[ ! -r "$file_define" ]] && ./extract_macros_filter.sh "$dir" "$file_define"
-
-#TODO: separate presets && blacklists
-if [[ ! -r "$filter_define_wa" ]]
-then
-   cat ./filter.preset > "$filter_define_wa"
-   #FIXME: explicit naming
-   grep -h -e '^__[a-z][a-z_]*$' "$file_define" >> "$filter_define_wa"
-   sort -u -o "$filter_define_wa" "$filter_define_wa"
-   comm -23 "$filter_define_wa" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define_wa"
-fi
-
-#TODO: separate presets && blacklists
-if [[ ! -r "$filter_define" ]]
-then
-   cat ./filter.preset > "$filter_define"
-   #FIXME: explicit naming
-   grep -h -e '^__[a-z][a-z_]*$' "./rule_cache/mnames.raw" >> "$filter_define"
-   sort -u -o "$filter_define" "$filter_define"
-   comm -23 "$filter_define" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define"
-fi
 
 #attribute filter
 perl -n -e 's/__attribute__[ \t]*\((?<b>\((?:[^\(\)]|(?&b))*\))\)[ \t]*//g; print' "$file" > "$tmp"

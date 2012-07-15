@@ -80,7 +80,7 @@ loop do
 	j = 0
 	counter = 0
 	
-	Parallel.map(vrarray, :in_threads => 20) { |lroot|
+	Parallel.map(vrarray, :in_threads => Parallel.processor_count ) { |lroot|
 		lgraph = RGL::DirectedAdjacencyGraph.new
 		varray = Array.new
 		lgraph.add_vertex(lroot)

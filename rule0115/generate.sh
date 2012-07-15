@@ -48,12 +48,43 @@ export_blacklist=./rule_cache/export.blacklist.dynamic
 
 graph="./rule_cache/graph.dot$lev"
 
+file_define="./rule_cache/macros_wa"
+filter_define_wa="./rule_cache/macros_wa_filter"
+filter_define="./rule_cache/macros_filter"
+
+export PR_COEFF=1
+
 [[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
 [[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
 [[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names"
 
-./filter.sh "$dir" "$export_definitions" "${export_definitions/%.raw/.filtered}"
-./filter.sh "$dir" "$inline_definitions" "${inline_definitions/%.raw/.filtered}"
+
+[[ ! -r "$file_define" ]] && ./extract_macros_filter.sh "$dir" "$file_define"
+(
+   #TODO: separate presets && blacklists
+   if [[ ! -r "$filter_define_wa" ]]
+   then
+      cat ./filter.preset > "$filter_define_wa"
+      grep -h -e '^__[a-z][a-z_]*$' "$file_define" >> "$filter_define_wa"
+      sort -u -o "$filter_define_wa" "$filter_define_wa"
+      comm -23 "$filter_define_wa" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define_wa"
+   fi
+) &
+(
+   #TODO: separate presets && blacklists
+   if [[ ! -r "$filter_define" ]]
+   then
+      cat ./filter.preset > "$filter_define"
+      grep -h -e '^__[a-z][a-z_]*$' "$macros_names" >> "$filter_define"
+      sort -u -o "$filter_define" "$filter_define"
+      comm -23 "$filter_define" <(cat ./filter.blacklist | sort -u) > "$tmp" && cp -f "$tmp" "$filter_define"
+   fi
+) &
+wait
+
+./filter.sh "$dir" "$filter_define_wa" "$filter_define" "$export_definitions" "${export_definitions/%.raw/.filtered}" &
+./filter.sh "$dir" "$filter_define_wa" "$filter_define" "$inline_definitions" "${inline_definitions/%.raw/.filtered}" &
+wait
 
 export_definitions="${export_definitions/%.raw/.filtered}"
 inline_definitions="${inline_definitions/%.raw/.filtered}"
@@ -65,7 +96,6 @@ do
    sort -u -o "${!i/%.raw/.filtered}" "${!i}" &
    eval $i="${!i/%.raw/.filtered}"
 done
-
 wait
 
 rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
@@ -110,7 +140,6 @@ for i in "$inline_blacklist" "$export_blacklist" "$macros_blacklist"
 do
    sort -u -o "$i" "$i" &
 done
-
 wait
 
 tmp="$(mktemp)"
