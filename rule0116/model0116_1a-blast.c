@@ -3,6 +3,8 @@
 #include <linux/kernel.h>
 #include <linux/spinlock.h>
 
+extern int LDV_IN_INTERRUPT;
+
 extern int ldv_spinlock_in_process_flag_TEMPLATE;
 extern int ldv_spinlock_in_interrupt_flag_TEMPLATE;
 
