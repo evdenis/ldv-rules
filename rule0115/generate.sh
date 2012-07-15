@@ -48,11 +48,9 @@ export_blacklist=./rule_cache/export.blacklist.dynamic
 
 graph="./rule_cache/graph.dot$lev"
 
-[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names" &
-[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names" &
-[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names" &
-
-wait
+[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
+[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
+[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names"
 
 ./filter.sh "$dir" "$export_definitions" "${export_definitions/%.raw/.filtered}"
 ./filter.sh "$dir" "$inline_definitions" "${inline_definitions/%.raw/.filtered}"
