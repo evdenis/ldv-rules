@@ -8,36 +8,63 @@ rdir="$( cd "$( dirname "$0" )" && pwd )"
 
 export PR_COEFF=1
 
-declare -i processors_num=$(grep -F -e 'processor' < /proc/cpuinfo | wc -l)
-declare -i threads_num=$(( $processors_num * ${PR_COEFF:-0} ))
-[[ $threads_num -eq 0 ]] && threads_num=1
-
 
 #cscope workarounds
-if [[ ! ( -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ) ]]
-then
+generate_cscope ()
+{
+   local cscope_index=no
+   local git_usage=no
+   local extension=''
+   local dir="$1"
+   local -i err=0
+   
    pushd "$dir" > /dev/null
-      if [[ -d .git/ ]]
+      if [[ -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ]]
       then
-         git stash save | grep -q -F 'No local changes to save'
-         git_save=$?
+         if [[ -z "$(cscope -L -1printk 2>&1 1>/dev/null)" ]]
+         then
+            cscope_index=yes
+         fi
       fi
-      find "$dir" -type f -name '*.[ch]' -print0 |
-         xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % \
-            perl -i -n -e \
-               's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
-                s/__printf\(\s*\d+\s*,\s*\d+\s*\)//g;
-                s/__aligned\(\s*\d+\s*\)//g;
-                print;' \
-            '%'
-      make ALLSOURCE_ARCHS=all cscope
-      if [[ -d .git/ ]]
+      
+      if [[ $cscope_index == 'no' ]]
       then
-         git checkout . > /dev/null
-         [[ $git_save -ne 0 ]] && git stash pop > /dev/null 2>&1
+         if [[ -d .git/ ]]
+         then
+            git_usage=yes
+            git stash save | grep -q -F 'No local changes to save'
+            git_save=$?
+         else
+            extension=".model0115_preprocessed$$"
+         fi
+         
+         find "$dir" -type f -name '*.[ch]' -print0 |
+            xargs --null --max-lines=1 --max-procs=0 --no-run-if-empty -I % \
+               perl -i${extension} -n -e \
+                  's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
+                   s/__printf\(\s*\d+\s*,\s*\d+\s*\)//g;
+                   s/__aligned\(\s*\d+\s*\)//g;
+                   print;' \
+               '%'
+         
+         make ALLSOURCE_ARCHS=all cscope || err=1
+         
+         if [[ $git_usage == 'yes' ]]
+         then
+            git checkout . > /dev/null
+            [[ $git_save -ne 0 ]] && git stash pop > /dev/null 2>&1
+         else
+            find "$dir" -type f -name "*${extension}" -print0 |
+               xargs --null --max-lines=1 --max-procs=0 --no-run-if-empty -I : \
+                  bash -c 'mv ":" $(sed -e "s/^\(.*\)'"${extension}"'$/\1/" <<< ":")'
+         fi
       fi
    popd > /dev/null
-fi
+   return $err
+}
+
+generate_cscope "$dir" || exit 1
+
 
 source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
 rule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
