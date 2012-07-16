@@ -9,6 +9,104 @@ use feature qw(say);
 undef $/;
 
 while ( <> ) {
+   
+   s#/\*[^*]*\*+([^/*][^*]*\*+)*/|//([^\\]|[^\n][\n]?)*?\n|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)#defined $3 ? $3 : ""#gse;
+   
+   #define
+   #elseif
+   #ifdef
+   #ifndef
+   #if
+   #
+   #line
+   #endif
+   #else
+   #include
+   #undef
+   #
+   #^[ \t]*sdfasdfsad()[ \t]*$
+   #
+   #error
+   #warning
+   
+   s/
+      ^
+      [ \t]*
+      \#
+      [ \t]*
+      (?:error|warning)
+      [ \t]*
+      \"
+         (
+            [^"\\\n]
+            |
+            \\"
+            |
+            \\\n
+         )*
+      \"
+      [ \t]*$
+   //gmx;
+   
+   s/
+      ^
+      [ \t]*
+      (?!if|for|return|while)
+      \w+
+      [ \t]*
+      (?<margs>
+         \(
+            (?:
+               [^\(\)\n\{\;\}]
+               |
+               (?&margs)
+            )+
+         \)
+         [ \t]*
+         \n
+      )(?!\s*[\{\\;])
+   //gmx;
+   
+   s/
+      ^
+      [ \t]*
+      \#
+      [ \t]*
+      (?:
+         e(?:lse(?!if)|ndif)
+         |
+         line
+         |
+         include
+         |
+         undef
+      )
+      .*
+      $
+   //gmx;
+   
+   s/
+      ^
+      [ \t]*
+      \#
+      [ \t]*
+      (?:
+         define
+         |
+         elseif
+         |
+         ifn?(?:def)?
+      )
+      [ \t]+
+      (?<mbody>
+         .*(?=\\\n)
+         \\\n
+         (?&mbody)?
+      )?
+      .+
+      $
+   //gmx;
+  
 	while (
 	/
 	(?<fdecl>
@@ -60,7 +158,7 @@ while ( <> ) {
 	   )
    )
 	\s*                  # spaces between function body and EXPORT_SYMBOL_GPL
-	EXPORT_SYMBOL_GPL
+	EXPORT_SYMBOL(_GPL(_FUTURE)?)?
 	\(\s*\g{fname}\s*\)      # function name within () brackets
 	[ \t]*;                  # spaces between () and ;
 	/gmx
