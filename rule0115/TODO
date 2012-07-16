@@ -7,10 +7,7 @@ Better dynamic blacklist support - exclude only from definitions file
 Remove workarounds after bugfixes in generate.sh
 Remove might_sleep comment in model.common.in
 
-Rewrite cscope index generation procedure - standard is not enought
-
-Massive parallelization of extraction rules
-
-Static inline - only explicit invocation of might_sleep
+Static inline - only explicit invocation of might_sleep in final rule
 
 test typedef - #
+
