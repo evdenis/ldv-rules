@@ -23,7 +23,7 @@ sed -i -e 's/asmlinkage//g' "$tmp"
 
 #macros filter construction
 filter=''
-nol=$(cat "$filter_define_wa" | wc -l)
+nol=$(wc -l < "$filter_define_wa")
 for (( i=1; i<$nol; i+=$filter_step ))
 do
    filter=$(tail -n +${i} "$filter_define_wa" | head -n $filter_step | tr '\n' '|' | sed -e 's/|$//')
@@ -34,7 +34,7 @@ do
 done
 
 filter=''
-nol=$(cat "$filter_define" | wc -l)
+nol=$(wc -l <"$filter_define")
 for (( i=1; i<$nol; i+=$filter_step ))
 do
    filter=$(tail -n +${i} "$filter_define" | head -n $filter_step | tr '\n' '|' | sed -e 's/|$//')
@@ -50,4 +50,4 @@ sed -i -e 's/\([[:alnum:]_]\+\)[[:space:]]\+(/\1(/' "$tmp"
 
 cp -f "$tmp" "$out"
 rm -f "$tmp"
-
+unset tmp

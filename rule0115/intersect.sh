@@ -3,5 +3,5 @@
 graph=$1
 names=$2
 
-comm -12 <(grep -e label "$1" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(cat "$2" | sort -u)
+comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
 
