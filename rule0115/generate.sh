@@ -12,23 +12,14 @@ export PR_COEFF=1
 #cscope workarounds
 generate_cscope ()
 {
-   local cscope_index=no
    local git_usage=no
    local extension=''
    local dir="$1"
    local -i err=0
    
-   pushd "$dir" > /dev/null
-      if [[ -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ]]
-      then
-         if [[ -z "$(cscope -L -1printk 2>&1 1>/dev/null)" ]]
-         then
-            cscope_index=yes
-         fi
-      fi
-      
-      if [[ $cscope_index == 'no' ]]
-      then
+   if [[ ! ( -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ) ]]
+   then
+      pushd "$dir" > /dev/null      
          if [[ -d .git/ ]]
          then
             git_usage=yes
@@ -58,8 +49,8 @@ generate_cscope ()
                xargs --null --max-lines=1 --max-procs=0 --no-run-if-empty -I : \
                   bash -c 'mv ":" $(sed -e "s/^\(.*\)'"${extension}"'$/\1/" <<< ":")'
          fi
-      fi
-   popd > /dev/null
+      popd > /dev/null
+   fi
    return $err
 }
 
