@@ -1,11 +1,19 @@
 #!/bin/bash -x
 
 lev="$1"
-dir="$2"
+dir="$(readlink -e -n $2)"
 
 rdir="$( cd "$( dirname "$0" )" && pwd )"
-# cd desire_kernel_dir
 
+
+export PR_COEFF=1
+
+declare -i processors_num=$(grep -F -e 'processor' < /proc/cpuinfo | wc -l)
+declare -i threads_num=$(( $processors_num * ${PR_COEFF:-0} ))
+[[ $threads_num -eq 0 ]] && threads_num=1
+
+
+#cscope workarounds
 if [[ ! ( -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ) ]]
 then
    pushd "$dir" > /dev/null
@@ -14,7 +22,14 @@ then
          git stash save | grep -q -F 'No local changes to save'
          git_save=$?
       fi
-      "${rdir}/remove_printf_and_aligned_macros.sh" .
+      find "$dir" -type f -name '*.[ch]' -print0 |
+         xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % \
+            perl -i -n -e \
+               's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
+                s/__printf\(\s*\d+\s*,\s*\d+\s*\)//g;
+                s/__aligned\(\s*\d+\s*\)//g;
+                print;' \
+            '%'
       make ALLSOURCE_ARCHS=all cscope
       if [[ -d .git/ ]]
       then
@@ -52,7 +67,6 @@ file_define="./rule_cache/macros_wa"
 filter_define_wa="./rule_cache/macros_wa_filter"
 filter_define="./rule_cache/macros_filter"
 
-export PR_COEFF=1
 
 [[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
 [[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
