@@ -26,7 +26,7 @@ find "$1" -type d \( -path '*/Documentation/*' -o -path '*/firmware/*' -o -path 
          do                                                       \
             (                                                     \
                flock --exclusive --nonblock 9 || exit 1;          \
-               ./extract_export2.pl < '%' >> \${lock[\$i]};          \
+               ./extract_export.pl < '%' >> \${lock[\$i]};        \
                if [[ \$? -eq 0 ]]; then exit 0; else exit 2; fi;  \
             ) 9>>\$i;                                             \
             if [[ \$? -eq 0 ]]; then break; fi;                   \
