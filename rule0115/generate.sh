@@ -152,12 +152,12 @@ rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 
 set -x
 
-#Filtering bug. Please, don't remove this check.
+#Self-detection of filtering bugs. Please, don't remove this check.
 echo "Inline problems:" | tee "$err_log"
 sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" | tee -a "$err_log" "$inline_blacklist"
 echo >> "$err_log"
 
-#Filtering bug. Please, don't remove this check.
+#Self-detection of filtering bugs. Please, don't remove this check.
 echo "Export problems:" | tee -a "$err_log"
 sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
 
@@ -207,33 +207,45 @@ cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
 
 set +x
 
-for func in $(./intersect.sh "$graph" "$export_names")
-do
-	while read i
-	do
-		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect
-	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
-done
+intersect ()
+{
+   local graph="$1"
+   local names="$2"
+   
+   comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
+}
 
-rm -f "$export_names" "$export_definitions"
+generate ()
+{
+   local names="$1"
+   local definitions="$2"
+   local template="$3"
+   local output="$4"
+#   local first_order
+   
+   for entity in $(intersect "$graph" "$names")
+   do
+	   while read subst
+   	do
+         echo -e "$(eval "$template")" >> "$output"
+   	done < <( grep -e "[^[:alnum:]_]$entity[[:space:]]*(" "$definitions" )
+   done
+   return 0
+}
 
-for func in $(./intersect.sh "$graph" "$inline_names")
-do
-	while read i
-	do
-		echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect
-	done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
-done
+func_tmpl='after: call( $subst )\n{\n\tcheck_in_interrupt();\n}\n'
+macro_tmpl='around: define( $subst )\n{\n\t({ check_in_interrupt(); 0; })\n}\n'
 
-rm -f "$inline_names" "$inline_definitions"
+generate "$export_names" "$export_definitions" "$func_tmpl"  model0115_1a-blast.aspect.1 &
+generate "$inline_names" "$inline_definitions" "$func_tmpl"  model0115_1a-blast.aspect.2 &
+generate "$macros_names" "$macros_definitions" "$macro_tmpl" model0115_1a-blast.aspect.3 &
 
-for macros in $(./intersect.sh "$graph" "$macros_names")
-do
-	while read i
-	do
-		echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115_1a-blast.aspect
-	done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
-done
+wait
 
-rm -f "$macros_names" "$macros_definitions"
+cat model0115_1a-blast.aspect.1 model0115_1a-blast.aspect.2 model0115_1a-blast.aspect.3 >> model0115_1a-blast.aspect
+
+rm -f "$export_names" "$export_definitions" \
+      "$inline_names" "$inline_definitions" \
+      "$macros_names" "$macros_definitions" \
+      model0115_1a-blast.aspect.1 model0115_1a-blast.aspect.2 model0115_1a-blast.aspect.3
 
