@@ -30,7 +30,7 @@
 	</model>
 	<model id="116_1a">
 		<rule>0116</rule>
-		<status>default</status>
+		<status>public</status>
 		<kind>plain</kind>
 		<error>LDV_ERROR</error>
 		<engine>blast</engine>
@@ -46,5 +46,19 @@
 			<common>./rule0116/model0116_1a-blast.c</common>
          <config>./rule0116/model0116_1a-config.h</config>
 		</files>
+   </model>
+   <model id="117_1a">
+		<rule>0117</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0117/model0117_1a-blast.aspect</aspect>
+			<common>./rule0117/model0117_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
 	</model>
 </model-db>

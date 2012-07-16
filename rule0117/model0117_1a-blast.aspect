@@ -1,0 +1,5 @@
+before: file("$this")
+{
+#include "../ldv.h"
+}
+
