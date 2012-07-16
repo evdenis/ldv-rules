@@ -39,33 +39,36 @@ then
    popd > /dev/null
 fi
 
-mkdir -p rule_cache
+source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
+rule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
+
+mkdir -p $rule_cache
 
 #macros_names=$(mktemp)
 #macros_definitions=$(mktemp)
-macros_names=./rule_cache/mnames.raw
-macros_definitions=./rule_cache/mdefinitions.raw
+macros_names="${rule_cache}/mnames.raw"
+macros_definitions="${rule_cache}/mdefinitions.raw"
 
 #inline_names=$(mktemp)
 #inline_definitions=$(mktemp)
-inline_names=./rule_cache/inames.raw
-inline_definitions=./rule_cache/idefinitions.raw
+inline_names="${rule_cache}/inames.raw"
+inline_definitions="${rule_cache}/idefinitions.raw"
 
 #export_names=$(mktemp)
 #export_definitions=$(mktemp)
-export_names=./rule_cache/enames.raw
-export_definitions=./rule_cache/edefinitions.raw
+export_names="${rule_cache}/enames.raw"
+export_definitions="${rule_cache}/edefinitions.raw"
 
-err_log=./rule_cache/err.log
-inline_blacklist=./rule_cache/inline.blacklist.dynamic
-macros_blacklist=./rule_cache/macros.blacklist.dynamic
-export_blacklist=./rule_cache/export.blacklist.dynamic
+err_log="${rule_cache}/err.log"
+inline_blacklist="${rule_cache}/inline.blacklist.dynamic"
+macros_blacklist="${rule_cache}/macros.blacklist.dynamic"
+export_blacklist="${rule_cache}/export.blacklist.dynamic"
 
-graph="./rule_cache/graph.dot$lev"
+graph="${rule_cache}/graph.dot$lev"
 
-file_define="./rule_cache/macros_wa"
-filter_define_wa="./rule_cache/macros_wa_filter"
-filter_define="./rule_cache/macros_filter"
+file_define="${rule_cache}/macros_wa"
+filter_define_wa="${rule_cache}/macros_wa_filter"
+filter_define="${rule_cache}/macros_filter"
 
 
 [[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
@@ -171,7 +174,7 @@ unset tmp
 
 set -x
 
-[[ ! -r "$graph" ]] && ./call.rb "$dir" "./rule_cache/" "$lev"
+[[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
 
 cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
 
