@@ -19,8 +19,14 @@ declare -i threads_num=$(( $processors_num * ${PR_COEFF:-0} ))
 lock_def="$(seq 1 $threads_num | xargs -I % sh -c "{ touch '${extracted}.%.'{lock,file}; echo -n '[\"${extracted}.%.lock\"]=\"${extracted}.%.file\" '; }")"
 eval lock=($lock_def)
 
-find "$1" -type d \( -path '*/Documentation/*' -o -path '*/firmware/*' -o -path '*/samples/*' -o -path '*/scripts/*' -o -path '*/tools/*' \)  -prune -o -type f -name '*.h' -print0 |
-   xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % bash -c \
+grep --include="*.h"             \
+   --exclude-dir='Documentation' \
+   --exclude-dir='firmware'      \
+   --exclude-dir='samples'       \
+   --exclude-dir='scripts'       \
+   --exclude-dir='tools'         \
+   --null -F -lre 'inline' "$1" |
+      xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % bash -c \
       "{                                                          \
          declare -A lock=($lock_def);                             \
          for i in \${!lock[@]};                                   \
