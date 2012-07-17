@@ -5,9 +5,8 @@ Macros aliases without args (__pfn_to_phys)?
 Better dynamic blacklist support - exclude only from definitions file
 
 Remove workarounds after bugfixes in generate.sh
-Remove might_sleep comment in model.common.in
+Remove might_sleep comment in model.common.in && remove generation of aspects on macros and static inline funxtions
 
-Static inline - only explicit invocation of might_sleep in final rule
 
 test typedef - #
 
