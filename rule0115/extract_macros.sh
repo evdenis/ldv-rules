@@ -22,11 +22,10 @@ eval lock=($lock_def)
 
 grep --include="*.h"             \
    --exclude-dir='Documentation' \
-   --exclude-dir='firmware'      \
    --exclude-dir='samples'       \
    --exclude-dir='scripts'       \
    --exclude-dir='tools'         \
-   --null -F -lre '#define' "$1" |
+   --null -F -lre 'define' "$1" |
       xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % bash -c \
       "{                                                          \
          declare -A lock=($lock_def);                             \

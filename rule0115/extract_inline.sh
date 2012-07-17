@@ -21,7 +21,6 @@ eval lock=($lock_def)
 
 grep --include="*.h"             \
    --exclude-dir='Documentation' \
-   --exclude-dir='firmware'      \
    --exclude-dir='samples'       \
    --exclude-dir='scripts'       \
    --exclude-dir='tools'         \

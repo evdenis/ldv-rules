@@ -12,6 +12,9 @@ export PR_COEFF=1
 #cscope workarounds
 generate_cscope ()
 {
+   local -i processors_num=$(grep -F -e 'processor' < /proc/cpuinfo | wc -l)
+   local -i threads_num=$(( $processors_num * ${PR_COEFF:-0} ))
+   [[ $threads_num -eq 0 ]] && threads_num=1
    local git_usage=no
    local extension=''
    local dir="$1"
@@ -30,7 +33,7 @@ generate_cscope ()
          fi
          
          find "$dir" -type f -name '*.[ch]' -print0 |
-            xargs --null --max-lines=1 --max-procs=0 --no-run-if-empty -I % \
+            xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % \
                perl -i${extension} -n -e \
                   's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
                    s/__printf\(\s*\d+\s*,\s*\d+\s*\)//g;
@@ -46,7 +49,7 @@ generate_cscope ()
             [[ $git_save -ne 0 ]] && git stash pop > /dev/null 2>&1
          else
             find "$dir" -type f -name "*${extension}" -print0 |
-               xargs --null --max-lines=1 --max-procs=0 --no-run-if-empty -I : \
+               xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I : \
                   bash -c 'mv ":" $(sed -e "s/^\(.*\)'"${extension}"'$/\1/" <<< ":")'
          fi
       popd > /dev/null
@@ -55,7 +58,6 @@ generate_cscope ()
 }
 
 generate_cscope "$dir" || exit 1
-
 
 source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
 rule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
@@ -153,14 +155,14 @@ echo "Export problems:" | tee -a "$err_log"
 sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
 
 #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
-grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
+grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist" > /dev/null
 echo >> "$err_log"
 
 #Aspectator bug. This check should be removed as soon as bug will be fixed.
 echo "Macros problems:" | tee -a "$err_log"
-sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist"
+sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 #Aspectator bug. Variadic macros not supported
-sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist"
+sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 
 set +x
 
@@ -206,30 +208,35 @@ intersect ()
    comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
 }
 
-generate ()
-{
-   local names="$1"
-   local definitions="$2"
-   local template="$3"
-   local output="$4"
-#   local first_order
-   
-   for entity in $(intersect "$graph" "$names")
+(
+   for func in $(intersect "$graph" "$export_names")
    do
-	   while read subst
-   	do
-         echo -e "$(eval "$template")" >> "$output"
-   	done < <( grep -e "[^[:alnum:]_]$entity[[:space:]]*(" "$definitions" )
+       while read i
+       do
+               echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.1
+       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
-   return 0
-}
+)&
 
-func_tmpl='after: call( $subst )\n{\n\tcheck_in_interrupt();\n}\n'
-macro_tmpl='around: define( $subst )\n{\n\t({ check_in_interrupt(); 0; })\n}\n'
+(
+   for func in $(intersect "${rule_cache}/graph.dot0" "$inline_names")
+   do
+       while read i
+       do
+               echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.2
+       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
+   done
+)&
 
-generate "$export_names" "$export_definitions" "$func_tmpl"  model0115_1a-blast.aspect.1 &
-generate "$inline_names" "$inline_definitions" "$func_tmpl"  model0115_1a-blast.aspect.2 &
-generate "$macros_names" "$macros_definitions" "$macro_tmpl" model0115_1a-blast.aspect.3 &
+(
+   for macros in $(intersect "${rule_cache}/graph.dot0" "$macros_names")
+   do
+       while read i
+       do
+               echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115_1a-blast.aspect.3
+       done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
+   done
+)&
 
 wait
 
