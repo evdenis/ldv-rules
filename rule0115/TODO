@@ -7,6 +7,10 @@ Better dynamic blacklist support - exclude only from definitions file
 Remove workarounds after bugfixes in generate.sh
 Remove might_sleep comment in model.common.in && remove generation of aspects on macros and static inline funxtions
 
+interrupt
+local_irq_disable
+spin_lock
+rcu_lock
 
 test typedef - #
 

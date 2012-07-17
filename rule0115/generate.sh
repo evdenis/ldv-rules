@@ -208,6 +208,8 @@ intersect ()
    comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
 }
 
+#Don't try to implement this codeblock(x3) as functions. It will not work
+#because of the bash bug.
 (
    for func in $(intersect "$graph" "$export_names")
    do
