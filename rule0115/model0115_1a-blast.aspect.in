@@ -2,14 +2,38 @@ before: file("$this")
 {
 #include "../ldv.h"
 
-extern int LDV_IN_INTERRUPT;
+int LDV_IN_RCU_READ = 0;
+int LDV_INTERRUPTS_DISABLED = 0;
+int LDV_IN_SPINLOCK = 0;
+
 void check_in_interrupt( void );
+void check_in_rcu_read( void );
+void check_in_spinlock( void );
+void check_interrupts_disabled( void );
+void check_all( void );
 }
 
 /*
 around: define( might_sleep() )
 {
-   check_in_interrupt()
+   check_all()
 }
 */
+
+after: call( static inline void rcu_read_lock( void ) )
+{
+   ++LDV_IN_RCU_READ;
+}
+
+before: call( static inline void rcu_read_unlock( void ) )
+{
+   --LDV_IN_RCU_READ;
+}
+
+//local_irq_save
+//local_irq_restore
+//local_irq_disable
+//local_irq_enable
+
+
 
