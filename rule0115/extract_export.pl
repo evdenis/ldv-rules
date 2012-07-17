@@ -73,7 +73,7 @@ while ( <> ) {
       \#
       [ \t]*
       (?:
-         e(?:lse(?!if)|ndif)
+         e(?:lse|ndif)
          |
          line
          |
@@ -93,7 +93,7 @@ while ( <> ) {
       (?:
          define
          |
-         elseif
+         elif
          |
          ifn?(?:def)?
       )
