@@ -147,24 +147,31 @@ rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 
 set -x
 
-#Self-detection of filtering bugs. Please, don't remove this check.
 echo "Inline problems:" | tee "$err_log" "$warn_log"
-sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" | tee -a "$err_log" "$inline_blacklist"
+   #Self-detection of filtering bugs. Please, don't remove this check.
+   sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" |
+      tee -a "$err_log" "$inline_blacklist"
+   
+   #Removal of __init && __exit functions.
+   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]]\|$\)/p' "$inline_definitions" | tee -a "$warn_log" "$inline_blacklist"
 echo | tee -a "$err_log" "$warn_log"
 
-#Self-detection of filtering bugs. Please, don't remove this check.
 echo "Export problems:" | tee -a "$err_log" "$warn_log"
-sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
+   #Self-detection of filtering bugs. Please, don't remove this check.
+   sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
+   
+   #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
+   grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist" > /dev/null
 
-#Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
-grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist" > /dev/null
+   #Removal of __init && __exit functions.
+   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
 echo | tee -a "$err_log" "$warn_log"
 
-#Aspectator bug. This check should be removed as soon as bug will be fixed.
 echo "Macros problems:" | tee -a "$err_log" "$warn_log"
-sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
-#Aspectator bug. Variadic macros not supported
-sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+   #Aspectator bug. This check should be removed as soon as bug will be fixed.
+   sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+   #Aspectator bug. Variadic macros not supported
+   sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 
 set +x
 
