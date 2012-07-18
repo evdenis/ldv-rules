@@ -1,4 +1,10 @@
 after: file("$this")
 {
+
+void
+anchor( void )
+{
+}
+
 }
 

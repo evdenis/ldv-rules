@@ -1,5 +1,16 @@
 before: file("$this")
 {
 #include "../ldv.h"
+#include <linux/interrupt.h>
+
+void anchor( void );
+}
+
+after: call( static inline int request_threaded_irq( unsigned int irq, ) )
+       || call( int request_threaded_irq() )
+{
+   ldv_assert();
+   # I will not stop talking that this is the BUG.
+   anchor();
 }
 
