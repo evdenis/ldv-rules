@@ -74,5 +74,33 @@
 			<config>./config-tracers.h</config>
 		</files>
 		<hints></hints>
+   </model>
+   <model id="120_1a">
+		<rule>0120</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0120/model0120_1a-blast.aspect</aspect>
+			<common>./rule0120/model0120_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
+	</model>
+   <model id="121_1a">
+		<rule>0121</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0121/model0121_1a-blast.aspect</aspect>
+			<common>./rule0121/model0121_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
 	</model>
 </model-db>
