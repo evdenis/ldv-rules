@@ -81,6 +81,7 @@ export_names="${rule_cache}/enames.raw"
 export_definitions="${rule_cache}/edefinitions.raw"
 
 err_log="${rule_cache}/err.log"
+warn_log="${rule_cache}/warn.log"
 inline_blacklist="${rule_cache}/inline.blacklist.dynamic"
 macros_blacklist="${rule_cache}/macros.blacklist.dynamic"
 export_blacklist="${rule_cache}/export.blacklist.dynamic"
@@ -147,20 +148,20 @@ rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 set -x
 
 #Self-detection of filtering bugs. Please, don't remove this check.
-echo "Inline problems:" | tee "$err_log"
+echo "Inline problems:" | tee "$err_log" "$warn_log"
 sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" | tee -a "$err_log" "$inline_blacklist"
-echo >> "$err_log"
+echo | tee -a "$err_log" "$warn_log"
 
 #Self-detection of filtering bugs. Please, don't remove this check.
-echo "Export problems:" | tee -a "$err_log"
+echo "Export problems:" | tee -a "$err_log" "$warn_log"
 sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
 
 #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
 grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist" > /dev/null
-echo >> "$err_log"
+echo | tee -a "$err_log" "$warn_log"
 
 #Aspectator bug. This check should be removed as soon as bug will be fixed.
-echo "Macros problems:" | tee -a "$err_log"
+echo "Macros problems:" | tee -a "$err_log" "$warn_log"
 sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 #Aspectator bug. Variadic macros not supported
 sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
