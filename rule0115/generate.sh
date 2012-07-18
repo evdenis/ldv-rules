@@ -37,6 +37,7 @@ generate_cscope ()
                perl -i${extension} -n -e \
                   's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
                    s/__printf\(\s*\d+\s*,\s*\d+\s*\)//g;
+                   s/__scanf\(\s*\d+\s*,\s*\d+\s*\)//g;
                    s/__aligned\(\s*\d+\s*\)//g;
                    print;' \
                '%'
@@ -215,23 +216,23 @@ intersect ()
    do
        while read i
        do
-               echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.1
+               echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.1
        done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
 )&
 
 (
-   for func in $(intersect "${rule_cache}/graph.dot0" "$inline_names")
+   for func in $(intersect "$graph" "$inline_names")
    do
        while read i
        do
-               echo -e "after: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.2
+               echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.2
        done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
    done
 )&
 
 (
-   for macros in $(intersect "${rule_cache}/graph.dot0" "$macros_names")
+   for macros in $(intersect "$graph" "$macros_names")
    do
        while read i
        do
