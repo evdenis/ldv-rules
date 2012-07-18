@@ -19,3 +19,24 @@ test typedef - #
 Bug in aspectator with typedefs forces us to use (..) instead of function arguments.
 Although it is working, but roughly speaking making use of explicit arguments is more proper solution.
 
+Export extractor problem(x2 __probe_kernel_read && __probe_kernel_write):
+long __weak probe_kernel_read(void *dst, const void *src, size_t size)
+    __attribute__((alias("__probe_kernel_read")));
+
+long __probe_kernel_read(void *dst, const void *src, size_t size)
+{
+   long ret;
+   mm_segment_t old_fs = get_fs();
+
+   set_fs(KERNEL_DS);
+   pagefault_disable();
+   ret = __copy_from_user_inatomic(dst,
+         (__force const void __user *)src, size);
+   pagefault_enable();
+   set_fs(old_fs);
+
+   return ret ? -EFAULT : 0;
+}
+EXPORT_SYMBOL_GPL(probe_kernel_read);
+
+
