@@ -16,3 +16,6 @@ irqhandler_t - proper aspect generation
 
 test typedef - #
 
+Bug in aspectator with typedefs forces us to use (..) instead of function arguments.
+Although it is working, but roughly speaking making use of explicit arguments is more proper solution.
+
