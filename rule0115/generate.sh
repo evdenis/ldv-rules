@@ -153,7 +153,9 @@ echo "Inline problems:" | tee "$err_log" "$warn_log"
       tee -a "$err_log" "$inline_blacklist"
    
    #Removal of __init && __exit functions.
-   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]]\|$\)/p' "$inline_definitions" | tee -a "$warn_log" "$inline_blacklist"
+   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log" "$inline_blacklist"
+   # IRQ handlers. Not sure about excluding them.
+   sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log"
 echo | tee -a "$err_log" "$warn_log"
 
 echo "Export problems:" | tee -a "$err_log" "$warn_log"
@@ -164,7 +166,9 @@ echo "Export problems:" | tee -a "$err_log" "$warn_log"
    grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist" > /dev/null
 
    #Removal of __init && __exit functions.
-   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
+   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
+   # IRQ handlers. Not sure about excluding them.
+   sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log"
 echo | tee -a "$err_log" "$warn_log"
 
 echo "Macros problems:" | tee -a "$err_log" "$warn_log"
