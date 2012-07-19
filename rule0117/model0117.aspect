@@ -1,0 +1,90 @@
+@include "ldv.aspect"
+
+before: file("$this")
+{
+void check( void );
+void in_de_pair( void );
+void out_de_pair( void );
+void in_sr_pair( void );
+void out_sr_pair( void );
+}
+
+around: define( local_irq_disable() )
+{
+   in_de_pair();
+}
+
+around: define( local_irq_enable() )
+{
+   out_de_pair();
+   check();
+}
+
+
+around: define( local_irq_save(flags) )
+{
+   in_sr_pair();
+}
+
+
+around: define( local_irq_restore(flags) )
+{
+   out_sr_pair();
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include "../ldv.h"
+
+int ldv_disable_interrupts = 0;
+int ldv_inside_de_pair = 0;
+int ldv_inside_sr_pair = 0;
+
+void
+inc_disable( void )
+{
+   ++ldv_disable_interrupts;
+}
+
+void
+dec_disable( void )
+{
+   --ldv_disable_interrupts;
+}
+
+void
+in_de_pair( void )
+{
+   inc_disable();
+   ++ldv_inside_de_pair;
+}
+
+void
+out_de_pair( void )
+{
+   dec_disable();
+   --ldv_inside_de_pair;
+}
+
+void
+in_sr_pair( void )
+{
+   inc_disable();
+   ++ldv_inside_sr_pair;
+}
+
+void
+out_sr_pair( void )
+{
+   dec_disable();
+   --ldv_inside_dr_pair;
+}
+
+void
+check( void )
+{
+   ldv_assert( ldv_inside_de_pair == 0 && ldv_inside_sr_pair == 0 );
+}
+
+}
