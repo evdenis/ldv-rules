@@ -47,7 +47,7 @@
          <config>./rule0116/model0116_1a-config.h</config>
 		</files>
    </model>
-   <model id="117_1a">
+   <model id="117">
 		<rule>0117</rule>
 		<status>public</status>
 		<kind>aspect</kind>
@@ -56,20 +56,6 @@
 		<description></description>
 		<files>
 			<aspect>./rule0117/model0117.aspect</aspect>
-			<config>./config-tracers.h</config>
-		</files>
-		<hints></hints>
-   </model>
-   <model id="125_1a">
-		<rule>0125</rule>
-		<status>public</status>
-		<kind>aspect</kind>
-		<error>LDV_ERROR</error>
-		<engine>blast</engine>
-		<description></description>
-		<files>
-			<aspect>./rule0125/model0125_1a-blast.aspect</aspect>
-			<common>./rule0125/model0125_1a-blast.aspect.common</common>
 			<config>./config-tracers.h</config>
 		</files>
 		<hints></hints>
@@ -88,7 +74,7 @@
 		</files>
 		<hints></hints>
 	</model>
-   <model id="121_1a">
+   <model id="121">
 		<rule>0121</rule>
 		<status>public</status>
 		<kind>aspect</kind>
@@ -96,10 +82,23 @@
 		<engine>blast</engine>
 		<description></description>
 		<files>
-			<aspect>./rule0121/model0121_1a-blast.aspect</aspect>
-			<common>./rule0121/model0121_1a-blast.aspect.common</common>
+			<aspect>./rule0121/model0121.aspect</aspect>
 			<config>./config-tracers.h</config>
 		</files>
 		<hints></hints>
-	</model>
+   </model>
+   <model id="125_1a">
+		<rule>0125</rule>
+		<status>public</status>
+		<kind>aspect</kind>
+		<error>LDV_ERROR</error>
+		<engine>blast</engine>
+		<description></description>
+		<files>
+			<aspect>./rule0125/model0125_1a-blast.aspect</aspect>
+			<common>./rule0125/model0125_1a-blast.aspect.common</common>
+			<config>./config-tracers.h</config>
+		</files>
+		<hints></hints>
+   </model>
 </model-db>

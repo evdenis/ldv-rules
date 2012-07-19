@@ -1,0 +1,40 @@
+@include "ldv.aspect"
+
+before: file("$this")
+{
+void check( void *, unsigned long flags );
+}
+
+around: define(IRQF_ONESHOT)
+{
+   0x10000000
+}
+
+/* request_anycontext_irq */
+
+/* unsigned int irq, irq_handler_t handler, irq_handler_t thread_fn, unsigned long flags, const char *name, void *dev */
+before:
+   execution( static inline int request_threaded_irq(..) ||
+   call( int request_threaded_irq(..) )
+{
+   check( $arg2, $arg4 );
+}
+
+/* struct device *dev, unsigned int irq, irq_handler_t handler, irq_handler_t thread_fn, unsigned long irqflags, const char *devname, void *dev_id */
+before: call( int devm_request_threaded_irq(..) )
+{
+   check( $arg3, $arg5 );
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+#include "../ldv.h"
+
+void
+check( void *handler, unsigned long flags )
+{
+   ldv_assert( ( handler != NULL ) && ( flags >= 0x10000000 ) );
+}
+
+}
+
