@@ -1,6 +1,5 @@
 Global:
 Macros aliases without args (__pfn_to_phys)?
-+EXtract EXPORT_SYMBOL_GPL separately
 
 Better dynamic blacklist support - exclude only from definitions file
 
@@ -14,7 +13,17 @@ rcu_lock
 
 irqhandler_t - proper aspect generation
 
-test typedef - #
+Problem:
+#ifdef CONFIG
+void main2( void )
+#else
+void main1( void )
+#endif
+{
+}
+EXPORT_SYMBOL();
+
+test typedef - ^
 
 Bug in aspectator with typedefs forces us to use (..) instead of function arguments.
 Although it is working, but roughly speaking making use of explicit arguments is more proper solution.
