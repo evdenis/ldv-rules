@@ -107,8 +107,6 @@ $file =~ s/
    $
 //gmx;
 
-print $file;
-
 my @exported = $file =~ m/EXPORT_SYMBOL(?:_GPL(?:_FUTURE)?)?\(\s*(\w+)\s*\)[ \t]*;/gm;
 
 my $name;
@@ -138,7 +136,7 @@ foreach $name ( @exported ) {
    			[\w \t\s\\\*\(\)\,]
       	)+
          (?>
-   	      \W$name        # function name
+   	      \b$name        # function name
 		      \s*                  # spaces between name and arguments
             (?<fargs>
                \(
@@ -183,8 +181,9 @@ foreach $name ( @exported ) {
 		$decl =~ s/\s{2,}/ /g;
    	$decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
 	   say $decl;
-   } else {
-      say STDERR $name;
+#   } else {
+#      say STDERR $name;
    }
+   pos($file) = 0;
 }
 
