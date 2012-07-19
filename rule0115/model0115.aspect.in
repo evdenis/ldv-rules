@@ -1,0 +1,29 @@
+@include "ldv.aspect"
+
+before: file("$this")
+{
+
+void check_in_interrupt( void );
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include "../ldv.h"
+
+extern int LDV_IN_INTERRUPT;
+
+void
+check_in_interrupt( void )
+{
+   ldv_assert( LDV_IN_INTERRUPT == 1 );
+}
+
+}
+
+
+around: define( might_sleep() )
+{
+   check_in_interrupt()
+}
+

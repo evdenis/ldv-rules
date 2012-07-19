@@ -14,7 +14,7 @@
 		</files>
 		<hints></hints>
 	</model>
-	<model id="115_1a">
+	<model id="115">
 		<rule>0115</rule>
 		<status>public</status>
 		<kind>aspect</kind>
@@ -22,8 +22,7 @@
 		<engine>blast</engine>
 		<description></description>
 		<files>
-			<aspect>./rule0115/model0115_1a-blast.aspect</aspect>
-			<common>./rule0115/model0115_1a-blast.aspect.common</common>
+			<aspect>./rule0115/model0115.aspect</aspect>
 			<config>./config-tracers.h</config>
 		</files>
 		<hints></hints>

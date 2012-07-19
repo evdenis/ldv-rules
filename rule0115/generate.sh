@@ -162,9 +162,6 @@ echo "Export problems:" | tee -a "$err_log" "$warn_log"
    #Self-detection of filtering bugs. Please, don't remove this check.
    sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
    
-   #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
-   grep -v -e '^[[:space:]]*\(\(static\|inline\|extern\|const\|enum\|struct\|union\|unsigned\|float\|double\|long\|int\|char\|short\|void\)\*\?[[:space:]]\+\)' "$export_definitions" | tee -a "$err_log" "$export_blacklist" > /dev/null
-
    #Removal of __init && __exit functions.
    sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
    # IRQ handlers. Not sure about excluding them.
@@ -173,9 +170,9 @@ echo | tee -a "$err_log" "$warn_log"
 
 echo "Macros problems:" | tee -a "$err_log" "$warn_log"
    #Aspectator bug. This check should be removed as soon as bug will be fixed.
-   sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+#   sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
    #Aspectator bug. Variadic macros not supported
-   sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+#   sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 
 set +x
 
@@ -207,9 +204,14 @@ unset tmp
 
 set -x
 
+#Transformation
+#Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
+perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|float|double|long|int|char|short|void)\*?\s+)/ || print "^" . "$_"' "$export_definitions"
+
+
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
 
-cp -f model0115_1a-blast.aspect.in model0115_1a-blast.aspect
+cp -f model0115.aspect.in model0115.aspect
 
 set +x
 
@@ -228,7 +230,7 @@ intersect ()
    do
        while read i
        do
-               echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.1
+               echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115.aspect.1
        done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
 )&
@@ -238,7 +240,7 @@ intersect ()
    do
        while read i
        do
-               echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115_1a-blast.aspect.2
+               echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115.aspect.2
        done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
    done
 )&
@@ -248,17 +250,17 @@ intersect ()
    do
        while read i
        do
-               echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115_1a-blast.aspect.3
+               echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115.aspect.3
        done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
    done
 )&
 
 wait
 
-cat model0115_1a-blast.aspect.1 model0115_1a-blast.aspect.2 model0115_1a-blast.aspect.3 >> model0115_1a-blast.aspect
+cat model0115.aspect.1 model0115.aspect.2 model0115.aspect.3 >> model0115.aspect
 
 rm -f "$export_names" "$export_definitions" \
       "$inline_names" "$inline_definitions" \
       "$macros_names" "$macros_definitions" \
-      model0115_1a-blast.aspect.1 model0115_1a-blast.aspect.2 model0115_1a-blast.aspect.3
+      model0115.aspect.1 model0115.aspect.2 model0115.aspect.3
 
