@@ -9,27 +9,27 @@ use feature qw(say);
 undef $/;
 
 while ( <> ) {
-	while (
-	/
+   while (
+   /
       ^
       [ \t]*
       \#define
       [ \t]+
       (?<mdecl>
          (?<mname>\w+)
-  	      \([\w\s,\*\.]*\)      # arguments. non-argument macros is possible
+           \([\w\s,\*\.]*\)      # arguments. non-argument macros is possible
       )
-	/gmx
-	) {
-		say $+{mname};
-		
-		my $decl = $+{mdecl};
-		
-		$decl =~ s/\n/ /g;
-		$decl =~ s/^[ \t]*$//g;
-		$decl =~ s/^[ \t]*//g;
-		$decl =~ s/\s{2,}/ /g;
-		say $decl;
-	}
+   /gmx
+   ) {
+      say $+{mname};
+      
+      my $decl = $+{mdecl};
+      
+      $decl =~ s/\n/ /g;
+      $decl =~ s/^[ \t]*$//g;
+      $decl =~ s/^[ \t]*//g;
+      $decl =~ s/\s{2,}/ /g;
+      say $decl;
+   }
 }
 

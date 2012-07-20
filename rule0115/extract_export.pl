@@ -113,31 +113,31 @@ my $name;
 foreach $name ( @exported ) {
    if ( $file =~
       m/
-   	(?<fdecl>
-      	#[^\(\)\{\}\[\];,\/\\\'\"#><\.]+ # declarations before function name
-	      (?<decl>
+      (?<fdecl>
+         #[^\(\)\{\}\[\];,\/\\\'\"#><\.]+ # declarations before function name
+         (?<decl>
             #(?<!
             #\#endif
             #)
             #(?<!
             #\#else
             #)
-   		   #(?<!
-	   		#\#ifdef  #Variable-lenght lookbehid is not supported
-   	   	#)
-		   	#(?<!
-   		   #	\#define #Variable-lenght lookbehind is not supported
-	   		#)
-   	   	#(?<!
-		   	#\#elif   #Variable-lenght lookbehind is not supported
-   		   #)
-	   		#[\w \s\\\*]
+            #(?<!
+            #\#ifdef  #Variable-lenght lookbehid is not supported
+            #)
+            #(?<!
+            #   \#define #Variable-lenght lookbehind is not supported
+            #)
+            #(?<!
+            #\#elif   #Variable-lenght lookbehind is not supported
+            #)
+            #[\w \s\\\*]
             #\#?[\w \s\\\*\(\)] #Workaround for look-behind
-   			[\w \t\s\\\*\(\)\,]
-      	)+
+            [\w \t\s\\\*\(\)\,]
+         )+
          (?>
-   	      \b$name        # function name
-		      \s*                  # spaces between name and arguments
+            \b$name        # function name
+            \s*                  # spaces between name and arguments
             (?<fargs>
                \(
                 (?:
@@ -148,41 +148,41 @@ foreach $name ( @exported ) {
                \)
             )
          )
-   	)
-	   \s*                  # spaces between arguments and function body
+      )
+      \s*                  # spaces between arguments and function body
       (?>
          (?<fbody>                    # function body group
-	         \{                # begin of function body
-		      (?:               # recursive pattern
-   		      [^\{\}]
-		   	   |
-   		      (?&fbody)
-	   	   )*
-   	      \}                # end of function body
-	      )
+            \{                # begin of function body
+            (?:               # recursive pattern
+               [^\{\}]
+               |
+               (?&fbody)
+            )*
+            \}                # end of function body
+         )
       )
       /gmx
    ) {
       
-	   say $name;
-	   
-		my $decl = $+{fdecl};
-   	
-	   #Dirty workaround for look-behind. Comments not supported. Multiline defines not supported.
+      say $name;
+      
+      my $decl = $+{fdecl};
+      
+      #Dirty workaround for look-behind. Comments not supported. Multiline defines not supported.
       #$decl =~ s/^[ \t]*\#ifdef[ \t]+\w+[ \t]*$//gm;
       #$decl =~ s/^[ \t]*\#ifndef[ \t]+\w+[ \t]*$//gm;
       #$decl =~ s/^[ \t]*\#if[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
       #$decl =~ s/^[ \t]*\#define[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
       #$decl =~ s/^[ \t]*\#undef[ \t]+[\w!\(\)<>=|&\+\-\*\/,]+[ \t]*$//gm;
-	   
-		$decl =~ s/\n/ /g;
-   	$decl =~ s/^[ \t]*$//g;
-	   $decl =~ s/^[ \t]*//g;
-		$decl =~ s/\s{2,}/ /g;
-		$decl =~ s/\*\s+/*/g;
+      
+      $decl =~ s/\n/ /g;
+      $decl =~ s/^[ \t]*$//g;
+      $decl =~ s/^[ \t]*//g;
+      $decl =~ s/\s{2,}/ /g;
+      $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
-   	$decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
-	   say $decl;
+      $decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
+      say $decl;
 #   } else {
 #      say STDERR $name;
    }

@@ -9,8 +9,8 @@ use feature qw(say);
 undef $/;
 
 while ( <> ) {
-	while (
-	/
+   while (
+   /
       ^
       [ \t]*
       (?<fdecl>
@@ -41,7 +41,7 @@ while ( <> ) {
             (?<fname>\w+)
             \s*
             (?<fargs>
-  	            \(
+                 \(
                (?:
                   [^\(\)]
                   |
@@ -58,20 +58,20 @@ while ( <> ) {
          |
          (*SKIP)(*FAIL)
       )
-	/gmx
-	) {
-		say $+{fname};
-		
-		my $decl = $+{fdecl};
-		
-		$decl =~ s/\n/ /g;
-		$decl =~ s/^[ \t]*$//g;
-		$decl =~ s/^[ \t]*//g;
-		$decl =~ s/\s{2,}/ /g;
-		$decl =~ s/\*\s+/*/g;
+   /gmx
+   ) {
+      say $+{fname};
+      
+      my $decl = $+{fdecl};
+      
+      $decl =~ s/\n/ /g;
+      $decl =~ s/^[ \t]*$//g;
+      $decl =~ s/^[ \t]*//g;
+      $decl =~ s/\s{2,}/ /g;
+      $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
       $decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
       say $decl;
-	}
+   }
 }
 
