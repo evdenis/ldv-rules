@@ -144,6 +144,7 @@ done
 wait
 
 rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
+touch "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 
 set -x
 
@@ -202,12 +203,11 @@ comm -23 "$macros_definitions" "$macros_blacklist" > "$tmp" && cp -f "$tmp" "$ma
 rm -f "$tmp"
 unset tmp
 
-set -x
-
 #Transformation
 #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
-perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|float|double|long|int|char|short|void)\*?\s+)/ || print "^" . "$_"' "$export_definitions"
+perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|float|double|long|int|char|short|void)\*?\s+)/ || s/^\s*/^/; print' "$export_definitions"
 
+set -x
 
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
 

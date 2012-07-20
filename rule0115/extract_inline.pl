@@ -68,6 +68,7 @@ while ( <> ) {
 		$decl =~ s/^[ \t]*$//g;
 		$decl =~ s/^[ \t]*//g;
 		$decl =~ s/\s{2,}/ /g;
+		$decl =~ s/\*\s+/*/g;
       $decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
       say $decl;
 	}
