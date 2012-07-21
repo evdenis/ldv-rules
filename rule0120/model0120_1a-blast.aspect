@@ -1,5 +1,10 @@
+@include "../ldv.aspect"
+
 before: file("$this")
 {
-#include "../ldv.h"
+}
+
+new: file(LDV_COMMON_MODEL)
+{
 }
 

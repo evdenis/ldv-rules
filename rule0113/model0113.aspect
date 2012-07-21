@@ -1,8 +1,8 @@
+@include "../ldv.aspect"
+
 before: file("$this")
 {
-#include "../ldv.h"
 
-extern int LDV_IN_INTERRUPT;
 void check_in_interrupt( void );
 }
 
@@ -54,5 +54,21 @@ around: define(raw_spin_unlock_irq(lock))
 after: call(static inline void spin_unlock_irq(..))
 {
    check_in_interrupt();
+}
+
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include "../ldv.h"
+
+extern int LDV_IN_INTERRUPT;
+
+void
+check_in_interrupt( void )
+{
+   ldv_assert( LDV_IN_INTERRUPT == 1 );
+}
+
 }
 
