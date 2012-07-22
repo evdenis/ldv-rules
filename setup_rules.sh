@@ -31,7 +31,7 @@ filename = '${LDV_DIR}/kernel-rules/model-db.xml'
 doc = XML::Parser.file(filename).parse
 
 XML::Parser.file('./model-db.xml').parse.find('/model-db/model').each { |node|
-	node.find_first('description').content = IO.readlines( 'rule' + node.find_first('rule').content + '/DESCRIPTION', 'r').to_s
+	#node.find_first('description').content = IO.readlines( 'rule' + node.find_first('rule').content + '/DESCRIPTION', 'r').to_s
 	node.find('files/*').each { |file|
 		file.content = './files/' + file.content
 	}

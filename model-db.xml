@@ -84,4 +84,43 @@
       </files>
       <hints></hints>
    </model>
+   <model id="122">
+      <rule>0122</rule>
+      <status>public</status>
+      <kind>aspect</kind>
+      <error>LDV_ERROR</error>
+      <engine>blast</engine>
+      <description>might_sleep with disabled interrupts</description>
+      <files>
+         <aspect>./rule0115/model0122.aspect</aspect>
+         <config>./config-tracers.h</config>
+      </files>
+      <hints></hints>
+   </model>
+   <model id="123">
+      <rule>0123</rule>
+      <status>public</status>
+      <kind>aspect</kind>
+      <error>LDV_ERROR</error>
+      <engine>blast</engine>
+      <description>might_sleep under spin_lock</description>
+      <files>
+         <aspect>./rule0115/model0123.aspect</aspect>
+         <config>./config-tracers.h</config>
+      </files>
+      <hints></hints>
+   </model>
+   <model id="124">
+      <rule>0124</rule>
+      <status>public</status>
+      <kind>aspect</kind>
+      <error>LDV_ERROR</error>
+      <engine>blast</engine>
+      <description>might_sleep under rcu_read_lock</description>
+      <files>
+         <aspect>./rule0115/model0124.aspect</aspect>
+         <config>./config-tracers.h</config>
+      </files>
+      <hints></hints>
+   </model>
 </model-db>

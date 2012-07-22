@@ -1,0 +1,44 @@
+@include "../ldv.aspect"
+
+before: file("$this")
+{
+int ldv_rcu_read_lock_nesting = 0;
+
+void ldv_check( void );
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include "../ldv.h"
+
+void
+ldv_check( void )
+{
+   ldv_assert( rcu_read_lock_nesting == 0 );
+}
+
+void
+ldv_ldv_check_final_state( void )
+{
+   ldv_check();
+}
+
+}
+
+around: execution( static inline void rcu_read_lock( void ) )
+{
+   ++ldv_rcu_read_lock_nesting;
+}
+
+around: execution( static inline void rcu_read_unlock( void ) )
+{
+   --ldv_rcu_read_lock_nesting;
+}
+
+
+around: define( might_sleep() )
+{
+   ldv_check()
+}
+

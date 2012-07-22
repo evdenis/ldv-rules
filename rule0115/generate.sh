@@ -212,6 +212,9 @@ set -x
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
 
 cp -f model0115.aspect.in model0115.aspect
+cp -f model0122.aspect.in model0122.aspect
+cp -f model0123.aspect.in model0123.aspect
+cp -f model0124.aspect.in model0124.aspect
 
 set +x
 
@@ -223,6 +226,8 @@ intersect ()
    comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
 }
 
+aspects="$(mktemp)"
+
 #Don't try to implement this codeblock(x3) as functions. It will not work
 #because of the bash bug.
 (
@@ -230,7 +235,7 @@ intersect ()
    do
        while read i
        do
-               echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115.aspect.1
+               echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.1"
        done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
 )&
@@ -240,7 +245,7 @@ intersect ()
    do
        while read i
        do
-               echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tcheck_in_interrupt();\n}\n" >> model0115.aspect.2
+               echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.2"
        done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
    done
 )&
@@ -250,17 +255,17 @@ intersect ()
    do
        while read i
        do
-               echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ check_in_interrupt(); 0; })\n}\n" >> model0115.aspect.3
+               echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
        done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
    done
 )&
 
 wait
 
-cat model0115.aspect.1 model0115.aspect.2 model0115.aspect.3 >> model0115.aspect
+cat "${aspects}."{1,2,3} | tee -a model0115.aspect model0122.aspect model0123.aspect model0124.aspect > /dev/null
 
 rm -f "$export_names" "$export_definitions" \
       "$inline_names" "$inline_definitions" \
       "$macros_names" "$macros_definitions" \
-      model0115.aspect.1 model0115.aspect.2 model0115.aspect.3
+      "${aspects}."{1,2,3}
 

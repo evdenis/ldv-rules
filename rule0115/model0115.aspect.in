@@ -3,7 +3,7 @@
 before: file("$this")
 {
 
-void check_in_interrupt( void );
+void ldv_check( void );
 }
 
 new: file(LDV_COMMON_MODEL)
@@ -14,7 +14,7 @@ new: file(LDV_COMMON_MODEL)
 extern int LDV_IN_INTERRUPT;
 
 void
-check_in_interrupt( void )
+ldv_check( void )
 {
    ldv_assert( LDV_IN_INTERRUPT == 1 );
 }
@@ -24,6 +24,6 @@ check_in_interrupt( void )
 
 around: define( might_sleep() )
 {
-   check_in_interrupt()
+   ldv_check()
 }
 

@@ -1,0 +1,51 @@
+@include "../ldv.aspect"
+
+before: file("$this")
+{
+
+void ldv_check( void );
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include "../ldv.h"
+
+void
+ldv_check( void )
+{
+   ldv_assert( LDV_IN_INTERRUPT == 1 );
+}
+
+}
+
+around: execution( static inline void spin_lock( spinlock_t *lock ) )
+{
+}
+
+around: execution( static inline void spin_unlock( spinlock_t *lock ) )
+{
+}
+
+around: execution( static inline void spin_lock_irq( spinlock_t *lock ) )
+{
+}
+
+around: execution( static inline void spin_unlock_irq( spinlock_t *lock ) )
+{
+}
+
+around: define( spin_lock_irqsave(lock, flags) )
+{
+}
+
+around: define( spin_unlock_irqrestore(lock, flags) )
+{
+}
+
+
+around: define( might_sleep() )
+{
+   ldv_check()
+}
+
