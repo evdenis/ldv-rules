@@ -1,0 +1,102 @@
+@include "../ldv.aspect"
+
+before: file("$this")
+{
+int ldv_rcu_read_lock_nested = 0;
+int ldv_rcu_read_lock_bh_nested = 0;
+int ldv_rcu_read_lock_sched_nested = 0;
+int ldv_srcu_read_lock_nested = 0;
+}
+
+
+around: execution( static inline void rcu_read_lock( void ) )
+{
+   ++ldv_rcu_read_lock_nested;
+}
+
+around: execution( static inline void rcu_read_unlock( void ) )
+{
+   --ldv_rcu_read_lock_nested;
+}
+
+around: define( rcu_dereference(p) )
+{
+   ({
+      ldv_undef_pointer();
+   })
+}
+
+
+/* rcu_bh */
+around: execution( static inline void rcu_read_lock_bh( void ) )
+{
+   ++ldv_rcu_read_lock_bh_nested;
+}
+
+around: execution( static inline void rcu_read_unlock_bh( void ) )
+{
+   --ldv_rcu_read_lock_bh_nested;
+}
+
+around: define( rcu_dereference_bh(p) )
+{
+   ({
+      ldv_undef_pointer();
+   })
+}
+
+
+/* rcu_sched */
+around: execution( static inline void rcu_read_lock_sched( void ) )
+{
+   ++ldv_rcu_read_lock_sched_nested;
+}
+
+around: execution( static inline void rcu_read_unlock_sched( void ) )
+{
+   --ldv_rcu_read_lock_sched_nested;
+}
+
+around: define( rcu_dereference_sched(p) )
+{
+   ({
+      ldv_undef_pointer();
+   })
+}
+
+
+/* srcu */
+around: execution( static inline int srcu_read_lock( struct srcu_struct *sp ) )
+{
+   ++ldv_srcu_read_lock_nested;
+   return ldv_undef_int();
+}
+
+around: execution( static inline void srcu_read_unlock( struct srcu_struct *sp, int idx ) )
+{
+   --ldv_srcu_read_lock_nested;
+}
+
+around: define( srcu_dereference(p,sp) )
+{
+   ({
+      ldv_undef_pointer();
+   })
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+#include "../ldv.h"
+
+void
+ldv_rcu_check( void )
+{
+}
+
+void
+ldv_check_final_state( void )
+{
+}
+
+}
+
