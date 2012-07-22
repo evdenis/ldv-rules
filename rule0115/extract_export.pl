@@ -149,6 +149,7 @@ foreach $name ( @exported ) {
             )
          )
       )
+      (?:\s*__(?:acquires|releases|attribute__)\s*(?<margs>\((?:[^\(\)]|(?&margs))+\)))*
       \s*                  # spaces between arguments and function body
       (?>
          (?<fbody>                    # function body group

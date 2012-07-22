@@ -51,8 +51,8 @@ while ( <> ) {
             )
          )
       )
+      (?:\s*__(?:acquires|releases|attribute__)\s*(?<margs>\((?:[^\(\)]|(?&margs))+\)))*
       \s*
-      #macros as well as comments should be removed
       (
          (\{|\#|\/\/|\/\*)
          |
