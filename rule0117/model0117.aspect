@@ -2,7 +2,7 @@
 
 before: file("$this")
 {
-void check( void );
+void ldv_check( void );
 void in_de_pair( void );
 void out_de_pair( void );
 void in_sr_pair( void );
@@ -11,25 +11,27 @@ void out_sr_pair( void );
 
 around: define( local_irq_disable() )
 {
-   in_de_pair();
+   in_de_pair()
 }
 
 around: define( local_irq_enable() )
 {
-   out_de_pair();
-   check();
+   ({
+      out_de_pair();
+      ldv_check();
+   })
 }
 
 
 around: define( local_irq_save(flags) )
 {
-   in_sr_pair();
+   in_sr_pair()
 }
 
 
 around: define( local_irq_restore(flags) )
 {
-   out_sr_pair();
+   out_sr_pair()
 }
 
 new: file(LDV_COMMON_MODEL)
@@ -65,15 +67,15 @@ out_sr_pair( void )
 }
 
 void
-check( void )
+ldv_check( void )
 {
    ldv_assert( ldv_inside_de_pair == 0 && ldv_inside_sr_pair == 0 );
 }
 
 void
-ldv_check_final_state( void )
+ldv_ldv_check_final_state( void )
 {
-   check();
+   ldv_check();
 }
 
 }
