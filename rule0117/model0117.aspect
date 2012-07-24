@@ -3,21 +3,21 @@
 before: file("$this")
 {
 void ldv_check( void );
-void in_de_pair( void );
-void out_de_pair( void );
-void in_sr_pair( void );
-void out_sr_pair( void );
+void ldv_in_de_pair( void );
+void ldv_out_de_pair( void );
+void ldv_in_sr_pair( void );
+void ldv_out_sr_pair( void );
 }
 
 around: define( local_irq_disable() )
 {
-   in_de_pair()
+   ldv_in_de_pair()
 }
 
 around: define( local_irq_enable() )
 {
    ({
-      out_de_pair();
+      ldv_out_de_pair();
       ldv_check();
    })
 }
@@ -25,13 +25,13 @@ around: define( local_irq_enable() )
 
 around: define( local_irq_save(flags) )
 {
-   in_sr_pair()
+   ldv_in_sr_pair()
 }
 
 
 around: define( local_irq_restore(flags) )
 {
-   out_sr_pair()
+   ldv_out_sr_pair()
 }
 
 new: file(LDV_COMMON_MODEL)
@@ -43,25 +43,25 @@ int ldv_inside_de_pair = 0;
 int ldv_inside_sr_pair = 0;
 
 void
-in_de_pair( void )
+ldv_in_de_pair( void )
 {
    ++ldv_inside_de_pair;
 }
 
 void
-out_de_pair( void )
+ldv_out_de_pair( void )
 {
    --ldv_inside_de_pair;
 }
 
 void
-in_sr_pair( void )
+ldv_in_sr_pair( void )
 {
    ++ldv_inside_sr_pair;
 }
 
 void
-out_sr_pair( void )
+ldv_out_sr_pair( void )
 {
    --ldv_inside_dr_pair;
 }
