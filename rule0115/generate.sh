@@ -58,12 +58,16 @@ generate_cscope ()
    return $err
 }
 
-generate_cscope "$dir" || exit 1
-
 source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
 rule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
 
-mkdir -p $rule_cache
+if [[ ! -d "$rule_cache" ]]
+then
+   rm -f "${dir}"/cscope.*
+   mkdir -p "$rule_cache"
+fi
+
+generate_cscope "$dir" || exit 1
 
 #macros_names=$(mktemp)
 #macros_definitions=$(mktemp)
@@ -211,10 +215,15 @@ set -x
 
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
 
-cp -f model0115.aspect.in model0115.aspect
-cp -f model0122.aspect.in model0122.aspect
-cp -f model0123.aspect.in model0123.aspect
-cp -f model0124.aspect.in model0124.aspect
+model0115="${rule_cache}/model0115.aspect"
+model0122="${rule_cache}/model0122.aspect"
+model0123="${rule_cache}/model0123.aspect"
+model0124="${rule_cache}/model0124.aspect"
+
+cp -f model0115.aspect.in "$model0115"
+cp -f model0122.aspect.in "$model0122"
+cp -f model0123.aspect.in "$model0123"
+cp -f model0124.aspect.in "$model0124"
 
 set +x
 
@@ -262,7 +271,12 @@ aspects="$(mktemp)"
 
 wait
 
-cat "${aspects}."{1,2,3} | tee -a model0115.aspect model0122.aspect model0123.aspect model0124.aspect > /dev/null
+cat "${aspects}."{1,2,3} | tee -a "$model0115" "$model0122" "$model0123" "$model0124" > /dev/null
+
+for i in "$model0115" "$model0122" "$model0123" "$model0124"
+do
+   ln -s -f "$i" "$(basename "$i")"
+done
 
 rm -f "$export_names" "$export_definitions" \
       "$inline_names" "$inline_definitions" \
