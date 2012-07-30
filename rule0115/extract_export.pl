@@ -133,8 +133,8 @@ foreach $name ( @exported ) {
             #)
             #[\w \s\\\*]
             #\#?[\w \s\\\*\(\)] #Workaround for look-behind
-            [\w \t\s\\\*\(\)\,]
-         )+
+            [\w \t\s\\\*\(\)\,]+
+         )
          (?>
             \b$name        # function name
             \s*                  # spaces between name and arguments
