@@ -242,30 +242,30 @@ aspects="$(mktemp)"
 (
    for func in $(intersect "$graph" "$export_names")
    do
-       while read i
-       do
-               echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.1"
-       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
+      while read i
+      do
+         echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.1"
+      done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
 )&
 
 (
    for func in $(intersect "$graph" "$inline_names")
    do
-       while read i
-       do
-               echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.2"
-       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
+      while read i
+      do
+         echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.2"
+      done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
    done
 )&
 
 (
    for macros in $(intersect "$graph" "$macros_names")
    do
-       while read i
-       do
-               echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
-       done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
+      while read i
+      do
+         echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
+      done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
    done
 )&
 
