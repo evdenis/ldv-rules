@@ -240,33 +240,42 @@ aspects="$(mktemp)"
 #Don't try to implement this codeblock(x3) as functions. It will not work
 #because of the bash bug.
 (
+   echo -n "before:" >> "${aspects}.1"
    for func in $(intersect "$graph" "$export_names")
    do
       while read i
       do
-         echo -e "before: call( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.1"
+         echo -e "\t|| call( $(echo "$i" | tr -d '\n') )" >> "${aspects}.1"
       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
+   perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*call\s*\()//m; print $file;' "${aspects}.1"
+   echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.1"
 )&
 
 (
+   echo -n "before:" >> "${aspects}.2"
    for func in $(intersect "$graph" "$inline_names")
    do
       while read i
       do
-         echo -e "before: execution( $(echo "$i" | tr -d '\n') )\n{\n\tldv_check();\n}\n" >> "${aspects}.2"
+         echo -e "\t|| execution( $(echo "$i" | tr -d '\n') )" >> "${aspects}.2"
       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
    done
+   perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
+   echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.2"
 )&
 
 (
+   echo -n "around:" >> "${aspects}.3"
    for macros in $(intersect "$graph" "$macros_names")
    do
       while read i
       do
-         echo -e "around: define( $(echo "$i" | tr -d '\n') )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
+         echo -e "\t|| define( $(echo "$i" | tr -d '\n') )" >> "${aspects}.3"
       done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
    done
+   perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*define\s*\()//m; print $file;' "${aspects}.3"
+   echo -e "{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
 )&
 
 wait
