@@ -37,7 +37,7 @@ around: define( local_irq_restore(flags) )
 new: file(LDV_COMMON_MODEL)
 {
 
-#include "../ldv.h"
+#include <ldv.h>
 
 int ldv_inside_de_pair = 0;
 int ldv_inside_sr_pair = 0;
@@ -63,7 +63,7 @@ ldv_in_sr_pair( void )
 void
 ldv_out_sr_pair( void )
 {
-   --ldv_inside_dr_pair;
+   --ldv_inside_sr_pair;
 }
 
 void

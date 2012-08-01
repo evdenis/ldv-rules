@@ -28,7 +28,7 @@ before: call( int devm_request_threaded_irq(..) )
 
 new: file(LDV_COMMON_MODEL)
 {
-#include "../ldv.h"
+#include <ldv.h>
 
 void
 ldv_check( void *handler, unsigned long flags )

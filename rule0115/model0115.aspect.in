@@ -9,7 +9,7 @@ void ldv_check( void );
 new: file(LDV_COMMON_MODEL)
 {
 
-#include "../ldv.h"
+#include <ldv.h>
 
 extern int LDV_IN_INTERRUPT;
 

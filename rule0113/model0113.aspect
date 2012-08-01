@@ -60,7 +60,7 @@ after: call(static inline void spin_unlock_irq(..))
 new: file(LDV_COMMON_MODEL)
 {
 
-#include "../ldv.h"
+#include <ldv.h>
 
 extern int LDV_IN_INTERRUPT;
 

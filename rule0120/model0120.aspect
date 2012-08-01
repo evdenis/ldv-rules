@@ -86,7 +86,7 @@ around: define( srcu_dereference(p,sp) )
 
 new: file(LDV_COMMON_MODEL)
 {
-#include "../ldv.h"
+#include <ldv.h>
 
 void
 ldv_rcu_check( void )
