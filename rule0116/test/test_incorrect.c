@@ -3,6 +3,7 @@
 #include <linux/module.h>
 #include <linux/version.h>
 
+#include <linux/proc_fs.h>
 #include <linux/interrupt.h>
 #include <linux/spinlock.h>
 
@@ -13,7 +14,7 @@ static DEFINE_SPINLOCK(lock);
 static irqreturn_t
 dummy_irq_handler1( int irq, void *dev_id )
 {
-   spin_lock( &lock );
+   spin_lock_irq( &lock );
    spin_unlock_irq( &lock );
    return IRQ_HANDLED;
 }
@@ -21,6 +22,9 @@ dummy_irq_handler1( int irq, void *dev_id )
 static irqreturn_t
 dummy_irq_handler2( int irq, void *dev_id )
 {
+   spin_lock_irq( &lock );
+   spin_unlock_irq( &lock );
+
    return IRQ_HANDLED;
 }
 
@@ -85,6 +89,24 @@ struct irq_chip tst_irq_chip = {
 
 #endif
 
+static int
+read_proc(char *buffer, char **start, off_t offset, int size, int *eof, void *data)
+{
+   char *hello_str = "Hello, world!\n";
+   int len = strlen(hello_str); /* Don't include the null byte. */
+   if (size < len)
+      return -EINVAL;
+   if (offset != 0)
+      return 0;
+   strcpy(buffer, hello_str);
+   *eof = 1;
+   
+   spin_lock( &lock );
+   spin_unlock( &lock );
+   
+   return len;
+}
+
 int irq1;
 int irq2;
 
@@ -95,7 +117,13 @@ mod_init( void )
    int r = 0;
    int status = false;
    irq_handler_t func = dummy_irq_handler1;
-   // SA_INTERRUPT flags
+   
+   if (create_proc_read_entry("read_proc", 0, NULL, read_proc, NULL) == 0) {
+     printk(KERN_ERR
+            "Unable to register \"read_proc\" proc file\n");
+     return -ENOMEM;
+   }
+   
    pr_info( "================================================================================\n" );
    for_each_irq_nr( irq ) {
       r = request_irq( irq, func, 0, NULL, NULL );
@@ -123,19 +151,16 @@ mod_init( void )
          pr_info( "IRQ_TEST: IRQ:%d FAIL CODE:%d REASON:%s\n", irq, r, reason );
       } else {
          pr_info( "IRQ_TEST: IRQ:%d SUCCESS\n", irq );
-	 if ( !status ) {
+         if ( !status ) {
             func = dummy_irq_handler2;
-	    status = true;
-	 } else {
+            status = true;
+         } else {
             break;
-	 }
+         }
       }
    }
    pr_info( "================================================================================\n" );
    
-   spin_lock( &lock );
-   spin_unlock_irq( &lock );
-
    return 0;
 }
 
