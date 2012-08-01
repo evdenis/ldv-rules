@@ -2,7 +2,7 @@
 
 before: file("$this")
 {
-int ldv_rcu_read_lock_nesting = 0;
+int ldv_rcu_read_lock_nested = 0;
 
 void ldv_check( void );
 }
@@ -15,7 +15,7 @@ new: file(LDV_COMMON_MODEL)
 void
 ldv_check( void )
 {
-   ldv_assert( rcu_read_lock_nesting == 0 );
+   ldv_assert( ldv_rcu_read_lock_nested == 0 );
 }
 
 void
@@ -28,14 +28,33 @@ ldv_ldv_check_final_state( void )
 
 around: execution( static inline void rcu_read_lock( void ) )
 {
-   ++ldv_rcu_read_lock_nesting;
+   ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock( void ) )
 {
-   --ldv_rcu_read_lock_nesting;
+   --ldv_rcu_read_lock_nested;
 }
 
+around: execution( static inline void rcu_read_lock_bh( void ) )
+{
+   ++ldv_rcu_read_lock_nested;
+}
+
+around: execution( static inline void rcu_read_unlock_bh( void ) )
+{
+   --ldv_rcu_read_lock_nested;
+}
+
+around: execution( static inline void rcu_read_lock_sched( void ) )
+{
+   ++ldv_rcu_read_lock_nested;
+}
+
+around: execution( static inline void rcu_read_unlock_sched( void ) )
+{
+   --ldv_rcu_read_lock_nested;
+}
 
 around: define( might_sleep() )
 {

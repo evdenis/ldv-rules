@@ -2,7 +2,7 @@
 
 before: file("$this")
 {
-int ldv_interrupts_disable_nesting = 0;
+int ldv_interrupts_disable_nested = 0;
 void ldv_check( void );
 }
 
@@ -15,7 +15,7 @@ new: file(LDV_COMMON_MODEL)
 void
 ldv_check( void )
 {
-   ldv_assert( ldv_interrupts_disable_nesting == 0 );
+   ldv_assert( ldv_interrupts_disable_nested == 0 );
 }
 
 void
@@ -28,22 +28,22 @@ ldv_check_final_state( void )
 
 around: define( local_irq_disable() )
 {
-   ++ldv_interrupts_disable_nesting
+   ++ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_enable() )
 {
-   --ldv_interrupts_disable_nesting
+   --ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_save(flags) )
 {
-   ++ldv_interrupts_disable_nesting
+   ++ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_restore(flags) )
 {
-   --ldv_interrupts_disable_nesting
+   --ldv_interrupts_disable_nested
 }
 
 
