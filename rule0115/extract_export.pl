@@ -165,8 +165,6 @@ foreach $name ( @exported ) {
       /gmx
    ) {
       
-      say $name;
-      
       my $decl = $+{fdecl};
       
       #Dirty workaround for look-behind. Comments not supported. Multiline defines not supported.
@@ -182,7 +180,34 @@ foreach $name ( @exported ) {
       $decl =~ s/\s{2,}/ /g;
       $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
-      $decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
+      
+      $decl =~ s/(?<args>(?<br>\((?:[^\(\)]|(?&br))+\)))\s*$/(..)/;
+      my $args = $+{args};
+      $args =~ s/^\s*\(//;
+      $args =~ s/\)\s*$//;
+      $args =~ m/^\s*(?<arg>[^,]+)/;
+      my $first_arg = $+{arg};
+      if ( $decl =~ m/\(\s*\Q$first_arg\E\s*[,)]/p ) {
+         #my $expr;
+         #foreach $expr (1..$#-) {
+         #   print "Match at position ($-[$expr],$+[$expr])\n";
+         #}
+         my $first_func = ${^PREMATCH};
+         $first_func =~ s/\(\s*$//g;
+         $decl =~ s/\Q$first_func\E\s*(?<br>\((?:[^\(\)]|(?&br))+\))\s*//;
+         
+         $first_func =~ m/(?<first_func_name>\w+)\s*$/p;
+         
+         # return argumenst equality check
+         if ( substr(${^PREMATCH}, 0, $-[0]) eq substr($decl, 0, $-[0])) {
+            say $+{first_func_name};
+            $first_func =~ s/\s*$/(..)/;
+            
+            say $first_func;
+         }
+      }
+      
+      say $name;
       say $decl;
 #   } else {
 #      say STDERR $name;
