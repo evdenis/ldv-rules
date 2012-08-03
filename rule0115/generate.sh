@@ -245,7 +245,7 @@ aspects="$(mktemp)"
    do
       while read i
       do
-         echo -e "\t|| call( $(echo "$i" | tr -d '\n') )" >> "${aspects}.1"
+         echo -e "\t|| call( $(echo -n "$i")" >> "${aspects}.1"
       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
    perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*call\s*\()//m; print $file;' "${aspects}.1"
@@ -258,24 +258,22 @@ aspects="$(mktemp)"
    do
       while read i
       do
-         echo -e "\t|| execution( $(echo "$i" | tr -d '\n') )" >> "${aspects}.2"
+         echo -e "\t|| execution( $(echo -n "$i") )" >> "${aspects}.2"
       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
    done
    perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
    echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.2"
 )&
 
+#Latter generation scheme doesn't work for macros.
 (
-   echo -n "around:" >> "${aspects}.3"
    for macros in $(intersect "$graph" "$macros_names")
    do
       while read i
       do
-         echo -e "\t|| define( $(echo "$i" | tr -d '\n') )" >> "${aspects}.3"
+         echo -e "around: define( $(echo -n "$i") )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
       done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
    done
-   perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*define\s*\()//m; print $file;' "${aspects}.3"
-   echo -e "{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
 )&
 
 wait
