@@ -245,7 +245,7 @@ aspects="$(mktemp)"
    do
       while read i
       do
-         echo -e "\t|| call( $(echo -n "$i")" >> "${aspects}.1"
+         echo -e "\t|| call( $(echo -n "$i") )" >> "${aspects}.1"
       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
    perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*call\s*\()//m; print $file;' "${aspects}.1"

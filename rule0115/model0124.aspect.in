@@ -12,6 +12,9 @@ new: file(LDV_COMMON_MODEL)
 
 #include <ldv.h>
 
+extern int ldv_rcu_read_lock_nested;
+
+
 void
 ldv_check( void )
 {
