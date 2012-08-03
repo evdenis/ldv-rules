@@ -3,7 +3,7 @@
 git_dir="$1"
 
 pushd "$git_dir" > /dev/null
-   for i in "$(git tag | grep -v 'rc\|tree' | sort -r )"
+   for i in $(git tag | grep -v 'rc\|tree' | sort -r )
    do
       git checkout -f "$i"
       popd > /dev/null

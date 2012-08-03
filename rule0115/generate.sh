@@ -209,7 +209,7 @@ unset tmp
 
 #Transformation
 #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
-perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|float|double|long|int|char|short|void)\*?\s+)/ || s/^\s*/^/; print' "$export_definitions"
+perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|float|double|long|int|char|short|void)\*?\s+)/ || s/^\s*/^/; print;' "$export_definitions"
 
 set -x
 

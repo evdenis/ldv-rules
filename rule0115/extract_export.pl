@@ -107,7 +107,7 @@ $file =~ s/
    $
 //gmx;
 
-my @exported = $file =~ m/EXPORT_SYMBOL(?:_GPL(?:_FUTURE)?)?\(\s*(\w+)\s*\)[ \t]*;/gm;
+my @exported = $file =~ m/EXPORT_SYMBOL(?:_GPL(?:_FUTURE)?)?\s*\(\s*(\w+)\s*\)\s*;/gm;
 
 my $name;
 foreach $name ( @exported ) {
