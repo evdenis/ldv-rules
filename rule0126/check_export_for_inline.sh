@@ -32,7 +32,7 @@ grep --include="*.[ch]"          \
          do                                                       \
             (                                                     \
                flock --exclusive --nonblock 9 || exit 1;          \
-               ./extract_export.pl < '%' >> \${lock[\$i]} && echo -n -e \"\$(readlink -e -n '%')\n\n\" >> \${lock[\$i]};         \
+               ./check_export_for_inline.pl < '%' >> \${lock[\$i]} && echo -n -e \"\$(readlink -e -n '%')\n\n\" >> \${lock[\$i]};         \
                if [[ \$? -eq 0 ]]; then exit 0; else exit 2; fi;  \
             ) 9>>\$i;                                             \
             if [[ \$? -eq 0 ]]; then break; fi;                   \

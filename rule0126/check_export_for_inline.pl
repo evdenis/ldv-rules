@@ -107,7 +107,7 @@ $file =~ s/
    $
 //gmx;
 
-my @exported = $file =~ m/EXPORT_SYMBOL(?:_GPL(?:_FUTURE)?)?\(\s*(\w+)\s*\)[ \t]*;/gm;
+my @exported = $file =~ m/EXPORT_SYMBOL(?:_GPL(?:_FUTURE)?)?\s*\(\s*(\w+)\s*\)\s*;/gm;
 
 my $status;
 $status = 1;
@@ -119,7 +119,7 @@ foreach $name ( @exported ) {
       (?<fdecl>
          (?<decl>
             [\w \t\s\\\*\(\)\,]*
-            (?:inline|static)
+            inline
             [\w \t\s\\\*\(\)\,]+
          )
          (?>
@@ -161,7 +161,32 @@ foreach $name ( @exported ) {
       $decl =~ s/\s{2,}/ /g;
       $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
-      say $decl;
+      
+      my $decl_orig = $decl;
+      $decl =~ s/(?<args>(?<br>\((?:[^\(\)]|(?&br))+\)))\s*$//;
+      my $args = $+{args};
+      $args =~ s/^\s*\(//;
+      $args =~ s/\)\s*$//;
+      $args =~ m/^\s*(?<arg>[^,]+)/;
+      my $first_arg = $+{arg};
+      if ( $decl =~ m/\(\s*\Q$first_arg\E\s*[,)]/p ) {
+         #my $expr;
+         #foreach $expr (1..$#-) {
+         #   print "Match at position ($-[$expr],$+[$expr])\n";
+         #}
+         my $first_func = ${^PREMATCH};
+         $first_func =~ s/\(\s*$//g;
+         $decl =~ s/\Q$first_func\E\s*(?<br>\((?:[^\(\)]|(?&br))+\))\s*//;
+         
+         $first_func =~ m/(?<first_func_name>\w+)\s*$/p;
+         
+         # return argumenst equality check
+         if ( substr(${^PREMATCH}, 0, $-[0]) eq substr($decl, 0, $-[0])) {
+            say $first_func;
+         }
+      }
+      
+      say $decl . "( " . $args . " )";
 #   } else {
 #      say STDERR $name;
    }
