@@ -47,7 +47,7 @@ around: define( rcu_dereference(p) )
    ({
       ldv_rcu_dereference = 1;
       ldv_check_rcu_dereference();
-      ldv_undef_pointer();
+      ldv_undef_ptr();
    })
 }
 
@@ -72,7 +72,7 @@ around: define( rcu_dereference_bh(p) )
    ({
       ldv_rcu_bh_dereference = 1;
       ldv_check_rcu_bh_dereference();
-      ldv_undef_pointer();
+      ldv_undef_ptr();
    })
 }
 
@@ -97,7 +97,7 @@ around: define( rcu_dereference_sched(p) )
    ({
       ldv_rcu_sched_dereference = 1;
       ldv_check_rcu_sched_dereference();
-      ldv_undef_pointer();
+      ldv_undef_ptr();
    })
 }
 
@@ -124,7 +124,7 @@ around: define( srcu_dereference(p,sp) )
    ({
       ldv_srcu_dereference = 1;
       ldv_check_srcu_dereference();
-      ldv_undef_pointer();
+      ldv_undef_ptr();
    })
 }
 
