@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use diagnostics;
 use 5.10.0;
 use feature qw(say);
 
@@ -38,7 +37,7 @@ $file =~ s/
    [ \t]*
    \"
       (
-         [^"\\\n]
+         (?>[^"\\\n]+)
          |
          \\"
          |
@@ -57,7 +56,7 @@ $file =~ s/
    (?<margs>
       \(
          (?:
-            [^\(\)\n\{\;\}]
+            (?>[^\(\)\n\{\;\}]+)
             |
             (?&margs)
          )+
@@ -141,7 +140,7 @@ foreach $name ( @exported ) {
             (?<fargs>
                \(
                 (?:
-                   [^\(\)]
+                   (?>[^\(\)]+)
                    |
                    (?&fargs)
                 )+
@@ -149,13 +148,23 @@ foreach $name ( @exported ) {
             )
          )
       )
-      (?:\s*__(?:acquires|releases|attribute__)\s*(?<margs>\((?:[^\(\)]|(?&margs))+\)))*
       \s*                  # spaces between arguments and function body
+      (?:
+         (?:
+            (?:__(?:acquires|releases|attribute__)\s*(?<margs>\((?:(?>[^\(\)]+)|(?&margs))+\)))
+            |
+            __attribute_const__
+            |
+            CONSTF
+            |
+            \\
+         )\s*
+      )*
       (?>
          (?<fbody>                    # function body group
             \{                # begin of function body
             (?:               # recursive pattern
-               [^\{\}]
+               (?>[^\{\}]+)
                |
                (?&fbody)
             )*
@@ -181,7 +190,7 @@ foreach $name ( @exported ) {
       $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
       
-      $decl =~ s/(?<args>(?<br>\((?:[^\(\)]|(?&br))+\)))\s*$/(..)/;
+      $decl =~ s/(?<args>(?<br>\((?:(?>[^\(\)]+)|(?&br))+\)))\s*$/(..)/;
       my $args = $+{args};
       $args =~ s/^\s*\(//;
       $args =~ s/\)\s*$//;
@@ -194,7 +203,7 @@ foreach $name ( @exported ) {
          #}
          my $first_func = ${^PREMATCH};
          $first_func =~ s/\(\s*$//g;
-         $decl =~ s/\Q$first_func\E\s*(?<br>\((?:[^\(\)]|(?&br))+\))\s*//;
+         $decl =~ s/\Q$first_func\E\s*(?<br>\((?:(?>[^\(\)]+)|(?&br))+\))\s*//;
          
          $first_func =~ m/(?<first_func_name>\w+)\s*$/p;
          

@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use diagnostics;
 use 5.10.0;
 use feature qw(say);
 
@@ -25,7 +24,7 @@ while ( <> ) {
                   (?<margs>
                      \(
                      (?:
-                        [^\(\)]
+                        (?>[^\(\)]+)
                         |
                         (?&margs)
                      )*
@@ -36,14 +35,16 @@ while ( <> ) {
             \**
             |
             \s*
-         )+?
+         )+
+         \s+
+         \**
          (?>
             (?<fname>\w+)
             \s*
             (?<fargs>
-                 \(
+               \(
                (?:
-                  [^\(\)]
+                  (?>[^\(\)]+)
                   |
                   (?&fargs)
                )+
@@ -51,12 +52,22 @@ while ( <> ) {
             )
          )
       )
-      (?:\s*__(?:acquires|releases|attribute__)\s*(?<margs>\((?:[^\(\)]|(?&margs))+\)))*
       \s*
+      (?:
+         (?:
+            (?:__(?:acquires|releases|attribute__)\s*(?<m2args>\((?:(?>[^\(\)]+)|(?&m2args))+\)))
+            |
+            __attribute_const__
+            |
+            CONSTF
+            |
+            \\
+         )\s*
+      )*
       (
-         (\{|\#|\/\/|\/\*)
+         (?:\{|\#|\/\/|\/\*)
          |
-         (*SKIP)(*FAIL)
+         (?:;|\()(*SKIP)(*FAIL)
       )
    /gmx
    ) {
@@ -70,7 +81,7 @@ while ( <> ) {
       $decl =~ s/\s{2,}/ /g;
       $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
-      $decl =~ s/(?<br>\((?:[^\(\)]|(?&br))+\))\s*$/(..)/;
+      $decl =~ s/(?<br>\((?:(?>[^\(\)]+)|(?&br))+\))\s*$/(..)/;
       say $decl;
    }
 }
