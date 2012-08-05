@@ -17,7 +17,7 @@ do
    rm -fr ./work/
 done
 
-for i in $(find ./inst/current/envs/linux-${kver}/linux-${kver}/drivers/ -maxdepth 1 -type d | cut -d '/' -f 6- | tail -n +2)
+for i in $(find ./inst/current/envs/linux-${kver}/linux-${kver}/drivers/ -maxdepth 1 -type d | cut -d '/' -f 7- | tail -n +2)
 do
    LDV_DEBUG=100 ldv-manager "envs=${kfile}" kernel_driver=1 "drivers=${i}/" "rule_models=${rules}" | tee "log-${i}.txt"
    rm -fr ./work/
