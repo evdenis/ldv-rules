@@ -29,7 +29,7 @@ generate_cscope ()
             git stash save | grep -q -F 'No local changes to save'
             git_save=$?
          else
-            extension=".model0115_preprocessed$$"
+            extension=".orig_$$"
          fi
          
          find "$dir" -type f -name '*.[ch]' -print0 |
@@ -215,15 +215,15 @@ set -x
 
 [[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
 
-model0115="${rule_cache}/model0115.aspect"
-model0122="${rule_cache}/model0122.aspect"
-model0123="${rule_cache}/model0123.aspect"
-model0124="${rule_cache}/model0124.aspect"
+declare -A model
+model_def="$(find "$rdir" -maxdepth 1 -type f -name 'model*\.aspect\.in' |
+             xargs -I % sh -c "{ echo -n '[\"%\"]=\"${rule_cache}/model\$(basename '%' | sed -e 's/model\([[:digit:]]\{4\}\)\.aspect\.in/\1/').aspect\" '; }")"
+eval model=($model_def)
 
-cp -f model0115.aspect.in "$model0115"
-cp -f model0122.aspect.in "$model0122"
-cp -f model0123.aspect.in "$model0123"
-cp -f model0124.aspect.in "$model0124"
+for i in ${!model[@]}
+do
+   cp -f "$i" "${model[$i]}"
+done
 
 set +x
 
@@ -278,11 +278,11 @@ aspects="$(mktemp)"
 
 wait
 
-cat "${aspects}."{1,2,3} | tee -a "$model0115" "$model0122" "$model0123" "$model0124" > /dev/null
+cat "${aspects}."{1,2,3} | tee -a "${model[@]}" > /dev/null
 
-for i in "$model0115" "$model0122" "$model0123" "$model0124"
+for i in "${!model[@]}"
 do
-   ln -s -f "$i" "$(basename "$i")"
+   ln -s -f "${model[$i]}" "$(basename "${i%.in}")"
 done
 
 rm -f "$export_names" "$export_definitions" \
