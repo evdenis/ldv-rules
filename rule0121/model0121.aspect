@@ -33,7 +33,7 @@ new: file(LDV_COMMON_MODEL)
 void
 ldv_check( void *handler, unsigned long flags )
 {
-   ldv_assert( ( handler != 0 ) && ( flags >= 0x10000000 ) );
+   ldv_assert( ( ( handler == 0 ) && ( flags >= 0x10000000 ) ) || ( handler != 0 ) );
 }
 
 }
