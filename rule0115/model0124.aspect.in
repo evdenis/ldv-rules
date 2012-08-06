@@ -2,7 +2,7 @@
 
 before: file("$this")
 {
-int ldv_rcu_read_lock_nested = 0;
+extern int ldv_rcu_read_lock_nested;
 
 void ldv_check( void );
 }
@@ -12,8 +12,7 @@ new: file(LDV_COMMON_MODEL)
 
 #include <ldv.h>
 
-extern int ldv_rcu_read_lock_nested;
-
+int ldv_rcu_read_lock_nested = 0;
 
 void
 ldv_check( void )
