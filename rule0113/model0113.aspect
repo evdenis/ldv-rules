@@ -3,7 +3,7 @@
 before: file("$this")
 {
 
-void ldv_check_in_interrupt( void );
+extern void ldv_check_in_interrupt( void );
 }
 
 around: define(on_each_cpu(func,info,wait))

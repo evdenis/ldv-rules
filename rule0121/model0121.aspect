@@ -2,7 +2,7 @@
 
 before: file("$this")
 {
-void ldv_check( void *, unsigned long flags );
+extern void ldv_check( void *, unsigned long flags );
 }
 
 around: define(IRQF_ONESHOT)

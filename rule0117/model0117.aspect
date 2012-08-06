@@ -2,11 +2,11 @@
 
 before: file("$this")
 {
-void ldv_check( void );
-void ldv_in_de_pair( void );
-void ldv_out_de_pair( void );
-void ldv_in_sr_pair( void );
-void ldv_out_sr_pair( void );
+extern void ldv_check( void );
+extern void ldv_in_de_pair( void );
+extern void ldv_out_de_pair( void );
+extern void ldv_in_sr_pair( void );
+extern void ldv_out_sr_pair( void );
 }
 
 around: define( local_irq_disable() )

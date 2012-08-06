@@ -3,7 +3,7 @@
 before: file("$this")
 {
 
-void ldv_check( void );
+extern void ldv_check( void );
 }
 
 new: file(LDV_COMMON_MODEL)
