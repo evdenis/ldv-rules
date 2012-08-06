@@ -15,7 +15,7 @@ pushd "$rule_dir" > /dev/null
    
    if [[ "$rule" -eq "0115" ]]
    then
-      if [[ -d "rule_cache-$kver" ]]
+      if [[ -d "rule_cache-${kver}" ]]
       then
          ./rselect.sh "$kver"
       else
@@ -27,7 +27,7 @@ pushd "$rule_dir" > /dev/null
    mv "$test_name" "$tdir"
    
    pushd "$tdir" > /dev/null
-      LDV_DEBUG=100 LDV_VIEW=y ldv-manager "envs=linux-3.2.23.tar.bz2" "drivers=${test_name}" "rule_models=${2}" | tee "log-${rule}.txt"
+      LDV_DEBUG=100 LDV_VIEW=y ldv-manager "envs=linux-${kver}.tar.bz2" "drivers=${test_name}" "rule_models=${2}" | tee "log-${rule}.txt"
    popd > /dev/null
    
 popd > /dev/null
