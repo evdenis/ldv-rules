@@ -2,29 +2,32 @@
 
 before: file("$this")
 {
-int ldv_rcu_nested = 0;
-int ldv_rcu_dereference = 0;
+#include <ldv.h>
 
-int ldv_rcu_bh_nested = 0;
-int ldv_rcu_bh_dereference = 0;
+extern int ldv_rcu_nested;
+extern int ldv_rcu_dereference;
 
-int ldv_rcu_sched_nested = 0;
-int ldv_rcu_sched_dereference = 0;
+extern int ldv_rcu_bh_nested;
+extern int ldv_rcu_bh_dereference;
 
-int ldv_srcu_read_lock_nested = 0;
-int ldv_srcu_dereference = 0;
+extern int ldv_rcu_sched_nested;
+extern int ldv_rcu_sched_dereference;
 
-void ldv_check_rcu_unlock( void );
-void ldv_check_rcu_dereference( void );
+extern int ldv_srcu_read_lock_nested;
+extern int ldv_srcu_dereference;
 
-void ldv_check_rcu_bh_unlock( void );
-void ldv_check_rcu_bh_dereference( void );
 
-void ldv_check_rcu_sched_unlock( void );
-void ldv_check_rcu_sched_dereference( void );
+extern void ldv_check_rcu_unlock( void );
+extern void ldv_check_rcu_dereference( void );
 
-void ldv_check_srcu_unlock( void );
-void ldv_check_srcu_dereference( void );
+extern void ldv_check_rcu_bh_unlock( void );
+extern void ldv_check_rcu_bh_dereference( void );
+
+extern void ldv_check_rcu_sched_unlock( void );
+extern void ldv_check_rcu_sched_dereference( void );
+
+extern void ldv_check_srcu_unlock( void );
+extern void ldv_check_srcu_dereference( void );
 }
 
 
@@ -130,7 +133,18 @@ around: define( srcu_dereference(p,sp) )
 
 new: file(LDV_COMMON_MODEL)
 {
-#include <ldv.h>
+
+int ldv_rcu_nested = 0;
+int ldv_rcu_dereference = 0;
+
+int ldv_rcu_bh_nested = 0;
+int ldv_rcu_bh_dereference = 0;
+
+int ldv_rcu_sched_nested = 0;
+int ldv_rcu_sched_dereference = 0;
+
+int ldv_srcu_read_lock_nested = 0;
+int ldv_srcu_dereference = 0;
 
 void
 ldv_check_final_state( void )
