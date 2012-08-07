@@ -2,7 +2,14 @@
 
 before: file("$this")
 {
-#include "../ldv.h"
+
+// It is not possible to include ldv.h
+// This is a bug and should be fixed.
+// #include "../ldv.h"
+// Workaround:
+int ldv_undef_int( void );
+void *ldv_undef_ptr( void );
+//
 
 extern int ldv_rcu_nested;
 extern int ldv_rcu_dereference;
