@@ -186,7 +186,8 @@ echo "Macros problems:" | tee -a "$err_log" "$warn_log"
    # sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
    #Aspectator bug. Variadic macros not supported
    perl -n -e '/\((\s*\w+\s*,)+\w+\.{3}\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
-
+   #Aspectator bug. Macro parameter with name 'register'
+   perl -n -e '/\((\s*\w+\s*,)*?\s*register\s*(,\s*\w+\s*)*\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 set +x
 
 #TODO: detect from which list to exclude. Or just use comm
