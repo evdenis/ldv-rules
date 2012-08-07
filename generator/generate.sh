@@ -108,29 +108,23 @@ filter_define="${rule_cache}/macros_filter"
 [[ ! -r "$file_define" ]] && "${rdir}/extract_macros_filter.sh" "$dir" "$file_define"
 (
    #TODO: separate presets && blacklists
-   if [[ ! -r "$filter_define_wa" ]]
-   then
-      cat "${rdir}/filter.preset" > "$filter_define_wa"
-      perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$file_define" >> "$filter_define_wa"
-      sort -u -o "$filter_define_wa" "$filter_define_wa"
-      tmp1="$(mktemp)"
-         comm -23 "$filter_define_wa" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
-      rm -f "$tmp1"
-      unset tmp1
-   fi
+   cat "${rdir}/filter.preset" > "$filter_define_wa"
+   perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$file_define" >> "$filter_define_wa"
+   sort -u -o "$filter_define_wa" "$filter_define_wa"
+   tmp1="$(mktemp)"
+      comm -23 "$filter_define_wa" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
+   rm -f "$tmp1"
+   unset tmp1
 ) &
 (
    #TODO: separate presets && blacklists
-   if [[ ! -r "$filter_define" ]]
-   then
-      cat "${rdir}/filter.preset" > "$filter_define"
-      perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$macros_names" >> "$filter_define"
-      sort -u -o "$filter_define" "$filter_define"
-      tmp2="$(mktemp)"
-            comm -23 "$filter_define" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
-      rm -f "$tmp2"
-      unset tmp2
-   fi
+   cat "${rdir}/filter.preset" > "$filter_define"
+   perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$macros_names" >> "$filter_define"
+   sort -u -o "$filter_define" "$filter_define"
+   tmp2="$(mktemp)"
+         comm -23 "$filter_define" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
+   rm -f "$tmp2"
+   unset tmp2
 ) &
 wait
 
