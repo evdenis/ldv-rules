@@ -1,5 +1,3 @@
 module_address
 audit_inode_child
 bool
-__init
-__exit

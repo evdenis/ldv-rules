@@ -112,7 +112,7 @@ filter_define="${rule_cache}/macros_filter"
    perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$file_define" >> "$filter_define_wa"
    sort -u -o "$filter_define_wa" "$filter_define_wa"
    tmp1="$(mktemp)"
-      comm -23 "$filter_define_wa" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
+      comm -23 "$filter_define_wa" <( sort -u <(cat "${rdir}/filter.blacklist" "${ldir}/filter.blacklist") ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
    rm -f "$tmp1"
    unset tmp1
 ) &
@@ -122,7 +122,7 @@ filter_define="${rule_cache}/macros_filter"
    perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$macros_names" >> "$filter_define"
    sort -u -o "$filter_define" "$filter_define"
    tmp2="$(mktemp)"
-         comm -23 "$filter_define" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
+      comm -23 "$filter_define" <( sort -u <(cat "${rdir}/filter.blacklist" "${ldir}/filter.blacklist") ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
    rm -f "$tmp2"
    unset tmp2
 ) &
