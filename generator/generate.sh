@@ -15,6 +15,10 @@ root_function="$(basename "$0" | sed -e 's/generate-//')"
 
 export PR_COEFF=1
 
+lock="${rdir}/generate.lock"
+
+exec 8>"$lock"
+flock -x 8
 
 #cscope workarounds
 generate_cscope ()
@@ -289,8 +293,11 @@ do
    ln -s -f "${model[$i]}" "$(basename "${i%.in}")"
 done
 
+
 rm -f "$export_names" "$export_definitions" \
       "$inline_names" "$inline_definitions" \
       "$macros_names" "$macros_definitions" \
       "${aspects}."{1,2,3}
+
+exec 8>&-
 
