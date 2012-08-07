@@ -101,15 +101,15 @@ export_definitions="${rule_cache}/edefinitions.raw"
 timestamp="$(date +%D-%R)"
 err_log="${rule_cache}/err-${timestamp}.log"
 warn_log="${rule_cache}/warn-${timestamp}.log"
-inline_blacklist="${rule_cache}/inline.blacklist.dynamic"
-macros_blacklist="${rule_cache}/macros.blacklist.dynamic"
-export_blacklist="${rule_cache}/export.blacklist.dynamic"
+inline_blacklist="${rule_cache}/inline.blacklist.dynamic.$$"
+macros_blacklist="${rule_cache}/macros.blacklist.dynamic.$$"
+export_blacklist="${rule_cache}/export.blacklist.dynamic.$$"
 
 graph="${lrule_cache}/graph.dot${lev}"
 
 file_define="${rule_cache}/macros_wa"
-filter_define_wa="${rule_cache}/macros_wa_filter"
-filter_define="${rule_cache}/macros_filter"
+filter_define_wa="${rule_cache}/macros_wa_filter.$$"
+filter_define="${rule_cache}/macros_filter.$$"
 
 
 [[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && "${rdir}/extract.sh" "$kdir" '*.h' 'inline' "${rdir}/extract_inline.pl" "$inline_definitions" "$inline_names"
@@ -156,7 +156,6 @@ do
 done
 wait
 
-rm -f "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 touch "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 
 set -x
@@ -298,6 +297,8 @@ done
 rm -f "$export_names" "$export_definitions" \
       "$inline_names" "$inline_definitions" \
       "$macros_names" "$macros_definitions" \
+      "$inline_blacklist" "$macros_blacklist" "$export_blacklist" \
+      "$filter_define" "$filter_define_wa"  \
       "${aspects}."{1,2,3}
 
 exec 8>&-
