@@ -111,9 +111,9 @@ filter_define_wa="${rule_cache}/macros_wa_filter"
 filter_define="${rule_cache}/macros_filter"
 
 
-[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && "${rdir}/extract_inline.sh" "$kdir" "$inline_definitions" "$inline_names"
-[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && "${rdir}/extract_macros.sh" "$kdir" "$macros_definitions" "$macros_names"
-[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && "${rdir}/extract_export.sh" "$kdir" "$export_definitions" "$export_names"
+[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && "${rdir}/extract.sh" "$kdir" '*.h' 'inline' "${rdir}/extract_inline.pl" "$inline_definitions" "$inline_names"
+[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && "${rdir}/extract.sh" "$kdir" '*.h' 'define' "${rdir}/extract_macros.pl" "$macros_definitions" "$macros_names"
+[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && "${rdir}/extract.sh" "$kdir" '*.[ch]' 'EXPORT_SYMBOL' "${rdir}/extract_export.pl" "$export_definitions" "$export_names"
 
 
 [[ ! -r "$file_define" ]] && "${rdir}/extract_macros_filter.sh" "$kdir" "$file_define"

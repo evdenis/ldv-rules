@@ -27,7 +27,7 @@ while ( <> ) {
       $decl =~ s/\n/ /g;
       $decl =~ s/^[ \t]*$//g;
       $decl =~ s/^[ \t]*//g;
-      $decl =~ s/\s{2,}/ /g;
+      $decl =~ s/\s+//g;
       say $decl;
    }
 }
