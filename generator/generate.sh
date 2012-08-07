@@ -179,7 +179,7 @@ echo "Export problems:" | tee -a "$err_log" "$warn_log"
    #Removal of __init && __exit functions.
    #sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
    # IRQ handlers. Not sure about excluding them.
-   sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log"
+   #sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log"
 echo | tee -a "$err_log" "$warn_log"
 
 echo "Macros problems:" | tee -a "$err_log" "$warn_log"
