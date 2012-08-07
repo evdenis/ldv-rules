@@ -5,6 +5,8 @@
 # $2 - inline definitions file
 # $3 - inline names file 
 
+ldir="$( cd "$( dirname "$0" )" && pwd )"
+
 rm -f "$2" "$3"
 
 declare -A lock
@@ -26,17 +28,17 @@ grep --include="*.h"             \
    --exclude-dir='tools'         \
    --null -F -lre 'inline' "$1" |
       xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % bash -c \
-      "{                                                          \
-         declare -A lock=($lock_def);                             \
-         for i in \${!lock[@]};                                   \
-         do                                                       \
-            (                                                     \
-               flock --exclusive --nonblock 9 || exit 1;          \
-               ./extract_inline.pl < '%' >> \${lock[\$i]};        \
-               if [[ \$? -eq 0 ]]; then exit 0; else exit 2; fi;  \
-            ) 9>>\$i;                                             \
-            if [[ \$? -eq 0 ]]; then break; fi;                   \
-         done;                                                    \
+      "{                                                             \
+         declare -A lock=($lock_def);                                \
+         for i in \${!lock[@]};                                      \
+         do                                                          \
+            (                                                        \
+               flock --exclusive --nonblock 9 || exit 1;             \
+               \"${ldir}/extract_inline.pl\" < '%' >> \${lock[\$i]}; \
+               if [[ \$? -eq 0 ]]; then exit 0; else exit 2; fi;     \
+            ) 9>>\$i;                                                \
+            if [[ \$? -eq 0 ]]; then break; fi;                      \
+         done;                                                       \
       }"
 
 cat "${lock[@]}" | tee >(sed -ne 'p;n' >> "$3") >(sed -ne 'g;n;p' >> "$2") > /dev/null

@@ -60,7 +60,7 @@ generate_cscope ()
 
 source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
 rule_cache="${rdir}/rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
-lrule_cache="${lrdir}/rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
+lrule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
 
 if [[ ! -d "$rule_cache" ]]
 then
@@ -134,8 +134,8 @@ filter_define="${rule_cache}/macros_filter"
 ) &
 wait
 
-./filter.sh "$dir" "$filter_define_wa" "$filter_define" "$export_definitions" "${export_definitions/%.raw/.filtered}" &
-./filter.sh "$dir" "$filter_define_wa" "$filter_define" "$inline_definitions" "${inline_definitions/%.raw/.filtered}" &
+"${rdir}/filter.sh" "$dir" "$filter_define_wa" "$filter_define" "$export_definitions" "${export_definitions/%.raw/.filtered}" &
+"${rdir}/filter.sh" "$dir" "$filter_define_wa" "$filter_define" "$inline_definitions" "${inline_definitions/%.raw/.filtered}" &
 wait
 
 export_definitions="${export_definitions/%.raw/.filtered}"
@@ -220,7 +220,7 @@ set -x
 
 declare -A model
 model_def="$(find "$ldir" -maxdepth 1 -type f -name 'model*\.aspect\.in' |
-             xargs -I % sh -c "{ echo -n '[\"%\"]=\"${lrule_cache}/model\$(basename '%' | sed -e 's/model\([[:digit:]]\{4\}\)\.aspect\.in/\1/').aspect\" '; }")"
+             xargs -I % sh -c "{ echo -n \"[\"%\"]=\"${lrule_cache}/model\$(basename '%' | sed -e 's/model\([[:digit:]]\{4\}\)\.aspect\.in/\1/').aspect\" \"; }")"
 eval model=($model_def)
 
 for i in ${!model[@]}
