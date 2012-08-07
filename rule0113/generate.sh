@@ -1,1 +1,0 @@
-../rule0115/generate.sh

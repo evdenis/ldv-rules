@@ -3,8 +3,8 @@
 lev="$1"
 dir="$(readlink -e -n $2)"
 
-rdir="$( cd "$( dirname "$0" )" && pwd )"
-
+ldir="$( cd "$( dirname "$0" )" && pwd )"
+rdir="$( cd "$( readlink -e -n "$0" | xargs dirname )" && pwd )"
 
 export PR_COEFF=1
 
@@ -20,9 +20,9 @@ generate_cscope ()
    local dir="$1"
    local -i err=0
    
-   if [[ ! ( -r "$dir/cscope.files" && -r "$dir/cscope.out" && -r "$dir/cscope.out.in" && -r "$dir/cscope.out.po" ) ]]
+   if [[ ! ( -r "${dir}/cscope.files" && -r "${dir}/cscope.out" && -r "${dir}/cscope.out.in" && -r "${dir}/cscope.out.po" ) ]]
    then
-      pushd "$dir" > /dev/null      
+      pushd "$dir" > /dev/null
          if [[ -d .git/ ]]
          then
             git_usage=yes
@@ -59,7 +59,8 @@ generate_cscope ()
 }
 
 source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
-rule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
+rule_cache="${rdir}/rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
+lrule_cache="${lrdir}/rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
 
 if [[ ! -d "$rule_cache" ]]
 then
@@ -68,6 +69,8 @@ then
 fi
 
 generate_cscope "$dir" || exit 1
+
+mkdir -p "$lrule_cache"
 
 #macros_names=$(mktemp)
 #macros_definitions=$(mktemp)
@@ -90,28 +93,28 @@ inline_blacklist="${rule_cache}/inline.blacklist.dynamic"
 macros_blacklist="${rule_cache}/macros.blacklist.dynamic"
 export_blacklist="${rule_cache}/export.blacklist.dynamic"
 
-graph="${rule_cache}/graph.dot$lev"
+graph="${lrule_cache}/graph.dot${lev}"
 
 file_define="${rule_cache}/macros_wa"
 filter_define_wa="${rule_cache}/macros_wa_filter"
 filter_define="${rule_cache}/macros_filter"
 
 
-[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && ./extract_inline.sh "$dir" "$inline_definitions" "$inline_names"
-[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && ./extract_macros.sh "$dir" "$macros_definitions" "$macros_names"
-[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && ./extract_export.sh "$dir" "$export_definitions" "$export_names"
+[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && "${rdir}/extract_inline.sh" "$dir" "$inline_definitions" "$inline_names"
+[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && "${rdir}/extract_macros.sh" "$dir" "$macros_definitions" "$macros_names"
+[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && "${rdir}/extract_export.sh" "$dir" "$export_definitions" "$export_names"
 
 
-[[ ! -r "$file_define" ]] && ./extract_macros_filter.sh "$dir" "$file_define"
+[[ ! -r "$file_define" ]] && "${rdir}/extract_macros_filter.sh" "$dir" "$file_define"
 (
    #TODO: separate presets && blacklists
    if [[ ! -r "$filter_define_wa" ]]
    then
-      cat ./filter.preset > "$filter_define_wa"
+      cat "${rdir}/filter.preset" > "$filter_define_wa"
       perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$file_define" >> "$filter_define_wa"
       sort -u -o "$filter_define_wa" "$filter_define_wa"
       tmp1="$(mktemp)"
-         comm -23 "$filter_define_wa" <( sort -u < ./filter.blacklist ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
+         comm -23 "$filter_define_wa" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
       rm -f "$tmp1"
       unset tmp1
    fi
@@ -120,11 +123,11 @@ filter_define="${rule_cache}/macros_filter"
    #TODO: separate presets && blacklists
    if [[ ! -r "$filter_define" ]]
    then
-      cat ./filter.preset > "$filter_define"
+      cat "${rdir}/filter.preset" > "$filter_define"
       perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$macros_names" >> "$filter_define"
       sort -u -o "$filter_define" "$filter_define"
       tmp2="$(mktemp)"
-            comm -23 "$filter_define" <( sort -u < ./filter.blacklist ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
+            comm -23 "$filter_define" <( sort -u < "${rdir}/filter.blacklist" ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
       rm -f "$tmp2"
       unset tmp2
    fi
@@ -158,7 +161,7 @@ echo "Inline problems:" | tee "$err_log" "$warn_log"
       tee -a "$err_log" "$inline_blacklist"
    
    #Removal of __init && __exit functions.
-   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log" "$inline_blacklist"
+   #sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log" "$inline_blacklist"
    # IRQ handlers. Not sure about excluding them.
    sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log"
 echo | tee -a "$err_log" "$warn_log"
@@ -168,7 +171,7 @@ echo "Export problems:" | tee -a "$err_log" "$warn_log"
    sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
    
    #Removal of __init && __exit functions.
-   sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
+   #sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
    # IRQ handlers. Not sure about excluding them.
    sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log"
 echo | tee -a "$err_log" "$warn_log"
@@ -185,14 +188,14 @@ set +x
 while read macro
 do
    sed -i -e "/^[[:space:]]*$macro[[:space:]]*$/d" "$macros_names"
-done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./macros.blacklist.static )
+done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' "${rdir}/macros.blacklist.static" )
 
 #TODO: detect from which list to exclude. Or just use comm
 while read func
 do
    sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$inline_names"
    sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$export_names"
-done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' ./functions.blacklist.static )
+done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' "${rdir}/functions.blacklist.static" )
 
 for i in "$inline_blacklist" "$export_blacklist" "$macros_blacklist"
 do
@@ -213,11 +216,11 @@ perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|floa
 
 set -x
 
-[[ ! -r "$graph" ]] && ./call.rb "$dir" "$rule_cache" "$lev"
+[[ ! -r "$graph" ]] && "${ldir}/call.rb" "$dir" "$lrule_cache" "$lev"
 
 declare -A model
-model_def="$(find "$rdir" -maxdepth 1 -type f -name 'model*\.aspect\.in' |
-             xargs -I % sh -c "{ echo -n '[\"%\"]=\"${rule_cache}/model\$(basename '%' | sed -e 's/model\([[:digit:]]\{4\}\)\.aspect\.in/\1/').aspect\" '; }")"
+model_def="$(find "$ldir" -maxdepth 1 -type f -name 'model*\.aspect\.in' |
+             xargs -I % sh -c "{ echo -n '[\"%\"]=\"${lrule_cache}/model\$(basename '%' | sed -e 's/model\([[:digit:]]\{4\}\)\.aspect\.in/\1/').aspect\" '; }")"
 eval model=($model_def)
 
 for i in ${!model[@]}

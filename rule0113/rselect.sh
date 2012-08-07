@@ -1,1 +1,0 @@
-../rule0115/rselect.sh
