@@ -1,10 +1,17 @@
 #!/bin/bash -x
 
 lev="$1"
-dir="$(readlink -e -n $2)"
+kdir="$(readlink -e -n $2)"
 
 ldir="$( cd "$( dirname "$0" )" && pwd )"
 rdir="$( cd "$( readlink -e -n "$0" | xargs dirname )" && pwd )"
+
+if [[ "$ldir" == "$rdir" ]]
+then
+   exit 1
+fi
+
+root_function="$(basename "$0" | sed -e 's/generate-//')"
 
 export PR_COEFF=1
 
@@ -58,17 +65,17 @@ generate_cscope ()
    return $err
 }
 
-source <(head -n 4 "${dir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
+source <(head -n 4 "${kdir}/Makefile" | tr -d ' ' | sed -e 's/^/KERNEL_/')
 rule_cache="${rdir}/rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
 lrule_cache="./rule_cache-${KERNEL_VERSION:-0}.${KERNEL_PATCHLEVEL:-0}.${KERNEL_SUBLEVEL:-0}${KERNEL_EXTRAVERSION:-}/"
 
 if [[ ! -d "$rule_cache" ]]
 then
-   rm -f "${dir}"/cscope.*
+   rm -f "${kdir}"/cscope.*
    mkdir -p "$rule_cache"
 fi
 
-generate_cscope "$dir" || exit 1
+generate_cscope "$kdir" || exit 1
 
 mkdir -p "$lrule_cache"
 
@@ -100,12 +107,12 @@ filter_define_wa="${rule_cache}/macros_wa_filter"
 filter_define="${rule_cache}/macros_filter"
 
 
-[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && "${rdir}/extract_inline.sh" "$dir" "$inline_definitions" "$inline_names"
-[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && "${rdir}/extract_macros.sh" "$dir" "$macros_definitions" "$macros_names"
-[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && "${rdir}/extract_export.sh" "$dir" "$export_definitions" "$export_names"
+[[ ! ( -r "$inline_definitions" && -r "$inline_names" ) ]] && "${rdir}/extract_inline.sh" "$kdir" "$inline_definitions" "$inline_names"
+[[ ! ( -r "$macros_definitions" && -r "$macros_names" ) ]] && "${rdir}/extract_macros.sh" "$kdir" "$macros_definitions" "$macros_names"
+[[ ! ( -r "$export_definitions" && -r "$export_names" ) ]] && "${rdir}/extract_export.sh" "$kdir" "$export_definitions" "$export_names"
 
 
-[[ ! -r "$file_define" ]] && "${rdir}/extract_macros_filter.sh" "$dir" "$file_define"
+[[ ! -r "$file_define" ]] && "${rdir}/extract_macros_filter.sh" "$kdir" "$file_define"
 (
    #TODO: separate presets && blacklists
    cat "${rdir}/filter.preset" > "$filter_define_wa"
@@ -128,8 +135,8 @@ filter_define="${rule_cache}/macros_filter"
 ) &
 wait
 
-"${rdir}/filter.sh" "$dir" "$filter_define_wa" "$filter_define" "$export_definitions" "${export_definitions/%.raw/.filtered}" &
-"${rdir}/filter.sh" "$dir" "$filter_define_wa" "$filter_define" "$inline_definitions" "${inline_definitions/%.raw/.filtered}" &
+"${rdir}/filter.sh" "$kdir" "$filter_define_wa" "$filter_define" "$export_definitions" "${export_definitions/%.raw/.filtered}" &
+"${rdir}/filter.sh" "$kdir" "$filter_define_wa" "$filter_define" "$inline_definitions" "${inline_definitions/%.raw/.filtered}" &
 wait
 
 export_definitions="${export_definitions/%.raw/.filtered}"
@@ -210,7 +217,7 @@ perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|floa
 
 set -x
 
-[[ ! -r "$graph" ]] && "${ldir}/call.rb" "$dir" "$lrule_cache" "$lev"
+[[ ! -r "$graph" ]] && "${rdir}/call.rb" "$kdir" "$root_function" "$lrule_cache" "$lev"
 
 declare -A model
 model_def="$(find "$ldir" -maxdepth 1 -type f -name 'model*\.aspect\.in' |

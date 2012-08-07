@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 #ARGV[0] - linux kernel sources directory
-#ARGV[1] - results store directory
-#ARGV[2] - graph level
+#ARGV[1] - root function
+#ARGV[2] - results store directory
+#ARGV[3] - graph level
 
 require 'rubygems'
 require 'rgl/adjacency'
@@ -44,7 +45,7 @@ class Node
 end
 
 graph = RGL::DirectedAdjacencyGraph.new
-root = Node.new("might_sleep")
+root = Node.new(ARGV[1])
 graph.add_vertex(root)
 %x[pushd #{ARGV[0]} > /dev/null; cscope -d -L -3#{root.id} | cut -d ' ' -f 2; popd > /dev/null;].split( ' ' ).each { |v| graph.add_edge(root, Node.new(v)) }
 root.mark
@@ -57,11 +58,11 @@ i = 1
 STDOUT.sync = true
 loop do
 
-   dotfile = File.new("#{ARGV[1]}/graph.dot#{i-1}", "w")
+   dotfile = File.new("#{ARGV[2]}/graph.dot#{i-1}", "w")
    graph.print_dotted_on( {}, dotfile )
    dotfile.close
    
-   if i == ARGV[2].to_i + 1
+   if i == ARGV[3].to_i + 1
       break
    end
    
