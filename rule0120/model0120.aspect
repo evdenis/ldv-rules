@@ -13,7 +13,7 @@ extern int ldv_rcu_bh_dereference;
 extern int ldv_rcu_sched_nested;
 extern int ldv_rcu_sched_dereference;
 
-extern int ldv_srcu_read_lock_nested;
+extern int ldv_srcu_nested;
 extern int ldv_srcu_dereference;
 
 
@@ -133,6 +133,7 @@ around: define( srcu_dereference(p,sp) )
 
 new: file(LDV_COMMON_MODEL)
 {
+#include <ldv.h>
 
 int ldv_rcu_nested = 0;
 int ldv_rcu_dereference = 0;
@@ -143,7 +144,7 @@ int ldv_rcu_bh_dereference = 0;
 int ldv_rcu_sched_nested = 0;
 int ldv_rcu_sched_dereference = 0;
 
-int ldv_srcu_read_lock_nested = 0;
+int ldv_srcu_nested = 0;
 int ldv_srcu_dereference = 0;
 
 void
