@@ -183,9 +183,9 @@ echo | tee -a "$err_log" "$warn_log"
 
 echo "Macros problems:" | tee -a "$err_log" "$warn_log"
    #Aspectator bug. This check should be removed as soon as bug will be fixed.
-#   sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+   # sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
    #Aspectator bug. Variadic macros not supported
-#   sed -n -e '/\.\.\./p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+   perl -n -e '/\((\s*\w+\s*,)+\w+\.{3}\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
 
 set +x
 
