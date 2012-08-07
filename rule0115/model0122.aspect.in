@@ -2,6 +2,9 @@
 
 before: file("$this")
 {
+
+#define const
+
 extern int ldv_interrupts_disable_nested;
 
 extern void ldv_check( void );

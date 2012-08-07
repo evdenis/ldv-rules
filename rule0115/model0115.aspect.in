@@ -3,6 +3,8 @@
 before: file("$this")
 {
 
+#define const
+
 extern void ldv_check( void );
 }
 

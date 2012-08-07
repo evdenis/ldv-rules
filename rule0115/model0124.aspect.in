@@ -2,6 +2,9 @@
 
 before: file("$this")
 {
+
+#define const
+
 extern int ldv_rcu_read_lock_nested;
 
 extern void ldv_check( void );
