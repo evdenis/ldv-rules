@@ -98,7 +98,7 @@ inline_definitions="${rule_cache}/idefinitions.raw"
 export_names="${rule_cache}/enames.raw"
 export_definitions="${rule_cache}/edefinitions.raw"
 
-timestamp="$(date +%D-%R)"
+timestamp="$(date +%Y%m%d-%H%M%S)"
 err_log="${rule_cache}/err-${timestamp}.log"
 warn_log="${rule_cache}/warn-${timestamp}.log"
 inline_blacklist="${rule_cache}/inline.blacklist.dynamic.$$"
