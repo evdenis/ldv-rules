@@ -92,7 +92,7 @@
       <engine>blast</engine>
       <description>might_sleep with disabled interrupts</description>
       <files>
-         <aspect>./rule0115/model0122.aspect</aspect>
+         <aspect>./rule0122/model0122.aspect</aspect>
          <config>./config-tracers.h</config>
       </files>
       <hints></hints>
@@ -105,7 +105,7 @@
       <engine>blast</engine>
       <description>might_sleep under spin_lock</description>
       <files>
-         <aspect>./rule0115/model0123.aspect</aspect>
+         <aspect>./rule0123/model0123.aspect</aspect>
          <config>./config-tracers.h</config>
       </files>
       <hints></hints>
@@ -118,7 +118,7 @@
       <engine>blast</engine>
       <description>might_sleep under rcu_read_lock</description>
       <files>
-         <aspect>./rule0115/model0124.aspect</aspect>
+         <aspect>./rule0124/model0124.aspect</aspect>
          <config>./config-tracers.h</config>
       </files>
       <hints></hints>
