@@ -1,0 +1,20 @@
+@include "../ldv.aspect"
+
+before: file("$this")
+{
+extern void ldv_check( void );
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include <ldv.h>
+
+void
+ldv_check( void )
+{
+   ldv_assert( true );
+}
+
+}
+

@@ -209,12 +209,15 @@ do
 done
 wait
 
-tmp="$(mktemp)"
-comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp" && cp -f "$tmp" "$inline_definitions"
-comm -23 "$export_definitions" "$export_blacklist" > "$tmp" && cp -f "$tmp" "$export_definitions"
-comm -23 "$macros_definitions" "$macros_blacklist" > "$tmp" && cp -f "$tmp" "$macros_definitions"
-rm -f "$tmp"
-unset tmp
+if [[ "$root_function" != "all" ]]
+then
+   tmp="$(mktemp)"
+   comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp" && cp -f "$tmp" "$inline_definitions"
+   comm -23 "$export_definitions" "$export_blacklist" > "$tmp" && cp -f "$tmp" "$export_definitions"
+   comm -23 "$macros_definitions" "$macros_blacklist" > "$tmp" && cp -f "$tmp" "$macros_definitions"
+   rm -f "$tmp"
+   unset tmp
+fi
 
 #Transformation
 #Aspectator bug. typedefs problem. This check should be removed as soon as bug will be fixed.
@@ -222,12 +225,20 @@ perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|floa
 
 set -x
 
-[[ ! -r "$graph" ]] && "${rdir}/call.rb" "$kdir" "$root_function" "$lrule_cache" "$lev"
+if [[ "$root_function" != "all" ]]
+then
+   [[ ! -r "$graph" ]] && "${rdir}/call.rb" "$kdir" "$root_function" "$lrule_cache" "$lev"
+fi
 
 declare -A model
 model_def="$(find "$ldir" -maxdepth 1 -type f -name 'model*\.aspect\.in' |
-             xargs -I % sh -c "{ echo -n \"[\"%\"]=\"${lrule_cache}/model\$(basename '%' | sed -e 's/model\([[:digit:]]\{4\}\)\.aspect\.in/\1/').aspect\" \"; }")"
+             xargs -I % sh -c "{ echo -n \"[\"%\"]=\"${lrule_cache}/model\$(basename '%' | perl -n -e '/model(.+?)\.aspect\.in/ && print \$1;').aspect\" \"; }")"
 eval model=($model_def)
+
+if [[ ${#model[@]} -eq 0 ]]
+then
+   exit 3
+fi
 
 for i in ${!model[@]}
 do
@@ -241,7 +252,12 @@ intersect ()
    local graph="$1"
    local names="$2"
    
-   comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
+   if [[ "$root_function" == all ]]
+   then
+      sort -u "$names"
+   else
+      comm -12 <(grep -e label "$graph" | cut -d '=' -f 2 | cut -b 2- | sort -u) <(sort -u "$names")
+   fi
 }
 
 aspects="$(mktemp)"

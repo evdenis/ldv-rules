@@ -26,6 +26,20 @@
       </files>
       <hints></hints>
    </model>
+   <model id="115_a">
+      <rule>0115</rule>
+      <status>public</status>
+      <kind>aspect</kind>
+      <error>LDV_ERROR</error>
+      <engine>blast</engine>
+      <description></description>
+      <files>
+         <aspect>./rule0115_a/model0115_a.aspect</aspect>
+         <config>./config-tracers.h</config>
+      </files>
+      <hints></hints>
+   </model>
+
    <model id="116">
       <rule>0116</rule>
       <status>public</status>
