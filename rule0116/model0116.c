@@ -12,7 +12,7 @@ int ldv_spinlock_in_process_flag_TEMPLATE = 0;
 int ldv_spinlock_in_interrupt_flag_TEMPLATE = 0;
 
 
-static inline void spin_lock_TEMPLATE( spinlock_t *lock )
+static inline void ldv_spin_lock_TEMPLATE( spinlock_t *lock )
 {
    if ( LDV_IN_INTERRUPT == 2 ) {
       ++ldv_spinlock_in_interrupt_flag_TEMPLATE;
