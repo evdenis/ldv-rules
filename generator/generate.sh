@@ -52,13 +52,14 @@ generate_cscope ()
             extension=".orig_$$"
          fi
          
-         grep --include='*.[ch]' --null -lre '__\(\(acquire\|release\)s\|printf\|scanf\|aligned\)' "$dir" |
+         grep --include='*.[chS]' --null -lre '__\(\(acquire\|release\)s\|printf\|scanf\|aligned\)\|defined' "$dir" |
             xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % \
                perl -i${extension} -n -e \
                   's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
                    s/__printf\(\s*\d+\s*,\s*\d+\s*\)//g;
                    s/__scanf\(\s*\d+\s*,\s*\d+\s*\)//g;
                    s/__aligned\(\s*\d+\s*\)//g;
+                   s/defined\s*\([^)]+\)/defined/g;
                    print;' \
                '%'
          
