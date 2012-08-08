@@ -105,7 +105,13 @@ inline_blacklist="${rule_cache}/inline.blacklist.dynamic.$$"
 macros_blacklist="${rule_cache}/macros.blacklist.dynamic.$$"
 export_blacklist="${rule_cache}/export.blacklist.dynamic.$$"
 
-graph="${lrule_cache}/graph.dot${lev}"
+if [[ "$root_function" != 'all' ]]
+then
+   mkdir -p "${rule_cache}/${root_function}/"
+   graph="${rule_cache}/${root_function}/graph.dot${lev}"
+else
+   graph=''
+fi
 
 file_define="${rule_cache}/macros_wa"
 filter_define_wa="${rule_cache}/macros_wa_filter.$$"
@@ -209,7 +215,7 @@ do
 done
 wait
 
-if [[ "$root_function" != "all" ]]
+if [[ "$root_function" != 'all' ]]
 then
    tmp="$(mktemp)"
    comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp" && cp -f "$tmp" "$inline_definitions"
@@ -225,9 +231,9 @@ perl -i -n -e '/^\s*((static|inline|extern|const|enum|struct|union|unsigned|floa
 
 set -x
 
-if [[ "$root_function" != "all" ]]
+if [[ "$root_function" != 'all' ]]
 then
-   [[ ! -r "$graph" ]] && "${rdir}/call.rb" "$kdir" "$root_function" "$lrule_cache" "$lev"
+   [[ ! -r "$graph" ]] && "${rdir}/call.rb" "$kdir" "$root_function" "${rule_cache}/${root_function}/" "$lev"
 fi
 
 declare -A model
@@ -252,7 +258,7 @@ intersect ()
    local graph="$1"
    local names="$2"
    
-   if [[ "$root_function" == all ]]
+   if [[ "$root_function" == 'all' ]]
    then
       sort -u "$names"
    else
