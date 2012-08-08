@@ -170,6 +170,8 @@ foreach $name ( @exported ) {
       $decl =~ s/\s{2,}/ /g;
       $decl =~ s/\*\s+/*/g;
       $decl =~ s/\b\*/ */g;
+      $decl =~ s/\*\s+\*/**/g;
+      $decl =~ s/(\w+)\s+\(/$1(/g;
       
       $decl =~ s/(?<args>(?<br>\((?:(?>[^\(\)]+)|(?&br))+\)))\s*$//;
       my $args = $+{args};
