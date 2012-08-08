@@ -1,17 +1,26 @@
 #!/bin/bash -x
 
+# Level of callgraph
+[[ ! "$1" =~ ^[0-9]+$ ]] && exit 1
 lev="$1"
-kdir="$(readlink -e -n $2)"
+# Kernel directory
+kdir="$(readlink -m -q -n "$2")"
+[[ ! -r "${kdir}/Kbuild" ]] && exit 1
+# Optional. Possible values: full, shorten. Default - shorten.
+# Meaning: full - all aspects; shorten - aspects only for export functions.
+generation="${3:-shorten}"
+[[ ( "$generation" != 'full' ) && ( "$generation" != 'shorten' ) ]] && exit 1
 
 ldir="$( cd "$( dirname "$0" )" && pwd )"
 rdir="$( cd "$( readlink -e -n "$0" | xargs dirname )" && pwd )"
 
 if [[ "$ldir" == "$rdir" ]]
 then
-   exit 1
+   exit 2
 fi
 
 root_function="$(basename "$0" | sed -e 's/generate-//')"
+[[ "$root_function" == 'all' ]] && generation='full'
 
 export PR_COEFF=1
 
@@ -79,7 +88,7 @@ then
    mkdir -p "$rule_cache"
 fi
 
-generate_cscope "$kdir" || exit 1
+generate_cscope "$kdir" || exit 3
 
 mkdir -p "$lrule_cache"
 
@@ -234,6 +243,7 @@ set -x
 if [[ "$root_function" != 'all' ]]
 then
    [[ ! -r "$graph" ]] && "${rdir}/call.rb" "$kdir" "$root_function" "${rule_cache}/${root_function}/" "$lev"
+   [[ ! -r "$graph" ]] && exit 3
 fi
 
 declare -A model
@@ -243,7 +253,7 @@ eval model=($model_def)
 
 if [[ ${#model[@]} -eq 0 ]]
 then
-   exit 3
+   exit 4
 fi
 
 for i in ${!model[@]}
@@ -283,33 +293,37 @@ aspects="$(mktemp)"
    echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.1"
 )&
 
-(
-   echo -n "before:" >> "${aspects}.2"
-   for func in $(intersect "$graph" "$inline_names")
-   do
-      while read i
+if [[ "$generation" == 'full' ]]
+then
+   (
+      echo -n "before:" >> "${aspects}.2"
+      for func in $(intersect "$graph" "$inline_names")
       do
-         echo -e "\t|| execution( $(echo -n "$i") )" >> "${aspects}.2"
-      done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
-   done
-   perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
-   echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.2"
-)&
+         while read i
+         do
+            echo -e "\t|| execution( $(echo -n "$i") )" >> "${aspects}.2"
+         done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
+      done
+      perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
+      echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.2"
+   )&
 
-#Latter generation scheme doesn't work for macros.
-(
-   for macros in $(intersect "$graph" "$macros_names")
-   do
-      while read i
+   #Latter generation scheme doesn't work for macros.
+   (
+      for macros in $(intersect "$graph" "$macros_names")
       do
-         echo -e "around: define( $(echo -n "$i") )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
-      done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
-   done
-)&
+         while read i
+         do
+            echo -e "around: define( $(echo -n "$i") )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
+         done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
+      done
+   )&
+
+fi
 
 wait
 
-cat "${aspects}."{1,2,3} | tee -a "${model[@]}" > /dev/null
+cat "${aspects}."[123] | tee -a "${model[@]}" > /dev/null
 
 for i in "${!model[@]}"
 do
