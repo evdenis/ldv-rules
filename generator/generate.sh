@@ -38,6 +38,7 @@ generate_cscope ()
    local git_usage=no
    local extension=''
    local dir="$1"
+   local remove=''
    local -i err=0
    
    if [[ ! ( -r "${dir}/cscope.files" && -r "${dir}/cscope.out" && -r "${dir}/cscope.out.in" && -r "${dir}/cscope.out.po" ) ]]
@@ -48,11 +49,13 @@ generate_cscope ()
             git_usage=yes
             git stash save | grep -q -F 'No local changes to save'
             git_save=$?
+            remove='rm -f %'
          else
             extension=".orig_$$"
+            remove="mv -f % %${extension}"
          fi
          
-         grep --include='*.[chS]' --null -lre '__\(\(acquire\|release\)s\|printf\|scanf\|aligned\)\|defined' "$dir" |
+         grep --include='*.[ch]' --null -lre '__\(\(acquire\|release\)s\|printf\|scanf\|aligned\)\|defined' "$dir" |
             xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % \
                perl -i${extension} -n -e \
                   's/(__acquire|__release)s\(\s*(?!x\s*\))[\w->&.]+\s*\)//g;
@@ -62,6 +65,7 @@ generate_cscope ()
                    s/defined\s*\([^)]+\)/defined/g;
                    print;' \
                '%'
+         find "$dir" -type f -name '*.S' -print0 | xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % $remove
          
          make ALLSOURCE_ARCHS=all cscope || err=1
          
