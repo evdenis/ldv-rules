@@ -1,3 +1,6 @@
 module_address
 audit_inode_child
 bool
+__always_inline
+__inline
+__inline__

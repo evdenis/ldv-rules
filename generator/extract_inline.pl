@@ -15,7 +15,7 @@ while ( <> ) {
       (?<fdecl>
          static
          \s+
-         inline
+         (:?__(:?always_)?)?inline(:?__)?
          \s+
          (?:
             \w*
@@ -83,7 +83,10 @@ while ( <> ) {
       $decl =~ s/\b\*/ */g;
       $decl =~ s/\*\s+\*/**/g;
       $decl =~ s/(\w+)\s+\(/$1(/g;
+      
+      $decl =~ s/\s__(:?always_)?inline(:?__)?\s/ inline /;
       $decl =~ s/(?<br>\((?:(?>[^\(\)]+)|(?&br))+\))\s*$/(..)/;
+      
       say $decl;
    }
 }
