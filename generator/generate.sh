@@ -197,13 +197,13 @@ apply_filter ()
    
    local tmp=$(type -t $filter)
    
-   if echo $tmp | grep -q -e '^function$' || alias | grep -F -e "alias ${filter}="
+   if echo $tmp | grep -q -e '^function$' || alias | grep -q -F -e "alias ${filter}="
    then
       [[ ( ! -r "$names" ) || ( ! -r "$definitions" ) ]] && return 1
       cp -f "$names" "${names}.orig"
       cp -f "$definitions" "${definitions}.orig"
       
-      if alias | grep -F -e "alias ${filter}="
+      if alias | grep -q -F -e "alias ${filter}="
       then
          filter=$(alias | grep -e $filter | cut -d '=' -f 2 | sed -e "s/^'//" -e "s/'$//")
       fi
