@@ -114,7 +114,8 @@ export_definitions="${rule_cache}/edefinitions.raw"
 
 timestamp="$(date +%Y%m%d-%H%M%S)"
 err_log="${rule_cache}/err-${timestamp}.log"
-warn_log="${rule_cache}/warn-${timestamp}.log"
+selferr_log="${rule_cache}/selferr-${timestamp}.log"
+exclusion_log="${lrule_cache}/exclusion-${timestamp}.log"
 inline_blacklist="${rule_cache}/inline.blacklist.dynamic.$$"
 macros_blacklist="${rule_cache}/macros.blacklist.dynamic.$$"
 export_blacklist="${rule_cache}/export.blacklist.dynamic.$$"
@@ -184,39 +185,80 @@ wait
 
 touch "$inline_blacklist" "$macros_blacklist" "$export_blacklist"
 
-set -x
+[[ -r "${ldir}/filter.sh" ]] && source "${ldir}/filter.sh"
 
-echo "Inline problems:" | tee "$err_log" "$warn_log"
+
+apply_filter ()
+{
+   local filter="$1"
+   local names="$2"
+   local definitions="$3"
+   local -i state=0
+   
+   local tmp=$(type -t $filter)
+   
+   if echo $tmp | grep -q -e '^function$' || alias | grep -F -e "alias ${filter}="
+   then
+      [[ ( ! -r "$names" ) || ( ! -r "$definitions" ) ]] && return 1
+      cp -f "$names" "${names}.orig"
+      cp -f "$definitions" "${definitions}.orig"
+      
+      if alias | grep -F -e "alias ${filter}="
+      then
+         filter=$(alias | grep -e $filter | cut -d '=' -f 2 | sed -e "s/^'//" -e "s/'$//")
+      fi
+      
+      $filter "$names" "$definitions"
+      
+      diff -q "${names}.orig" "$names" > /dev/null
+      local -i names_diff=$?
+      if [[ $names_diff -ne 0 ]]
+      then
+         echo -e " Names diff:\n$( diff "${names}.orig" "$names" | grep -e '^< ' | sed -e 's/^< /  /' )" >> "$exclusion_log"
+         [[ -n "$(diff "${names}.orig" "$names" | grep -e '^> ')" ]] && return 2
+      fi
+      
+      diff -q "${definitions}.orig" "$definitions" > /dev/null
+      local -i defs_diff=$?
+      if [[ "$defs_diff" -ne 0 ]]
+      then
+         echo -e " Definitions diff:\n$( diff "${definitions}.orig" "$definitions" | grep -e '^< ' | sed -e 's/^< /  /' )" >> "$exclusion_log"
+         [[ -n "$(diff "${definitions}.orig" "$definitions" | grep -e '^> ')" ]] && return 2
+      fi
+      
+      rm -f "${names}.orig" "${definitions}.orig"
+   fi
+   
+   return 0
+}
+
+echo "Inline problems:" | tee "$err_log" "$selferr_log" "$exclusion_log"
    #Self-detection of filtering bugs. Please, don't remove this check.
    sed -n -e '/^[[:space:]]*static[[:space:]]\+inline[[:space:]]\+[[:alnum:]_]\+[[:space:]]*(/p' "$inline_definitions" |
-      tee -a "$err_log" "$inline_blacklist"
+      tee -a "$selferr_log" "$inline_blacklist"
    
-   #Removal of __init && __exit functions.
-   #sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log" "$inline_blacklist"
-   # IRQ handlers. Not sure about excluding them.
-   sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$inline_definitions" | tee -a "$warn_log"
-echo | tee -a "$err_log" "$warn_log"
+   apply_filter inline_filter "$inline_names" "$inline_definitions" || exit 3
+   
+echo | tee -a "$err_log" "$selferr_log" "$exclusion_log"
 
-echo "Export problems:" | tee -a "$err_log" "$warn_log"
+echo "Export problems:" | tee -a "$err_log" "$selferr_log" "$exclusion_log"
    #Self-detection of filtering bugs. Please, don't remove this check.
-   sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$err_log" "$export_blacklist"
+   sed -n -e '/^[[:space:]]*\(static[[:space:]]\+\)\?\(inline[[:space:]]\+\)\?\(\(const\|enum\|struct\)[[:space:]]\+\)\?\(\*+[[:space:]]\+\)*[[:alnum:]_]\+[[:space:]]*(/p' "$export_definitions" | tee -a "$selferr_log" "$export_blacklist"
    
-   #Removal of __init && __exit functions.
-   #sed -n -e '/[^[:alnum:]_]\(__init\|__exit\)\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log" "$export_blacklist"
-   # IRQ handlers. Not sure about excluding them.
-   #sed -n -e '/\(^\|[^[:alnum:]_]\)irqreturn_t\([^[:alnum:]_]\|$\)/p' "$export_definitions" | tee -a "$warn_log"
-echo | tee -a "$err_log" "$warn_log"
+   apply_filter export_filter "$export_names" "$export_definitions" || exit 3
+   
+echo | tee -a "$err_log" "$selferr_log" "$exclusion_log"
 
-echo "Macros problems:" | tee -a "$err_log" "$warn_log"
+echo "Macros problems:" | tee -a "$err_log" "$selferr_log" "$exclusion_log"
    #Aspectator bug. This check should be removed as soon as bug will be fixed.
    # sed -n -e '/^[[:space:]]*[[:alnum:]_]\+([[:space:]]*)/p' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
    #Aspectator bug. Variadic macros not supported
    perl -n -e '/\((\s*\w+\s*,)+\w+\.{3}\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
    #Aspectator bug. Macro parameter with name 'register'
    perl -n -e '/\((\s*\w+\s*,)*?\s*register\s*(,\s*\w+\s*)*\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+   
+   apply_filter macros_filter "$macros_names" "$macros_definitions" || exit 3
 
-
-set +x
 
 global_static_functions_blacklist='' 
 global_static_macros_blacklist=''
