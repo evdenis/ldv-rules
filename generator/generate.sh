@@ -143,8 +143,11 @@ filter_define="${rule_cache}/macros_filter.$$"
    cat "${rdir}/filter.preset" > "$filter_define_wa"
    perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$file_define" >> "$filter_define_wa"
    sort -u -o "$filter_define_wa" "$filter_define_wa"
+   
+   local_blacklist=''
+   [[ -r "${ldir}/filter.blacklist" ]] && local_blacklist="${ldir}/filter.blacklist"
    tmp1="$(mktemp)"
-      comm -23 "$filter_define_wa" <( sort -u <(cat "${rdir}/filter.blacklist" "${ldir}/filter.blacklist") ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
+      comm -23 "$filter_define_wa" <( sort -u <( cat "${rdir}/filter.blacklist" $local_blacklist ) ) > "$tmp1" && cp -f "$tmp1" "$filter_define_wa"
    rm -f "$tmp1"
    unset tmp1
 ) &
@@ -153,8 +156,11 @@ filter_define="${rule_cache}/macros_filter.$$"
    cat "${rdir}/filter.preset" > "$filter_define"
    perl -n -e '/^__[a-z][a-z_]*(?<!_t)$/ && print;' "$macros_names" >> "$filter_define"
    sort -u -o "$filter_define" "$filter_define"
+   
+   local_blacklist=''
+   [[ -r "${ldir}/filter.blacklist" ]] && local_blacklist="${ldir}/filter.blacklist"
    tmp2="$(mktemp)"
-      comm -23 "$filter_define" <( sort -u <(cat "${rdir}/filter.blacklist" "${ldir}/filter.blacklist") ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
+      comm -23 "$filter_define" <( sort -u <( cat "${rdir}/filter.blacklist" $local_blacklist ) ) > "$tmp2" && cp -f "$tmp2" "$filter_define"
    rm -f "$tmp2"
    unset tmp2
 ) &
@@ -208,29 +214,54 @@ echo "Macros problems:" | tee -a "$err_log" "$warn_log"
    perl -n -e '/\((\s*\w+\s*,)+\w+\.{3}\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
    #Aspectator bug. Macro parameter with name 'register'
    perl -n -e '/\((\s*\w+\s*,)*?\s*register\s*(,\s*\w+\s*)*\)/ && print' "$macros_definitions" | tee -a "$err_log" "$macros_blacklist" > /dev/null
+
+
 set +x
 
-#TODO: detect from which list to exclude. Or just use comm
-while read macro
-do
-   sed -i -e "/^[[:space:]]*$macro[[:space:]]*$/d" "$macros_names"
-done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' "${rdir}/macros.blacklist.static" )
-
-#TODO: detect from which list to exclude. Or just use comm
-while read func
-do
-   sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$inline_names"
-   sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$export_names"
-done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' "${rdir}/functions.blacklist.static" )
-
-for i in "$inline_blacklist" "$export_blacklist" "$macros_blacklist"
-do
-   sort -u -o "$i" "$i" &
-done
-wait
+global_static_functions_blacklist='' 
+global_static_macros_blacklist=''
 
 if [[ "$root_function" != 'all' ]]
 then
+   global_static_functions_blacklist="${rdir}/functions.blacklist.static" 
+   global_static_macros_blacklist="${rdir}/macros.blacklist.static" 
+fi
+
+local_static_functions_blacklist=''
+local_static_macros_blacklist=''
+
+[[ -r "${ldir}/functions.blacklist.static" ]] && local_static_functions_blacklist="${ldir}/functions.blacklist.static"
+[[ -r "${ldir}/macros.blacklist.static" ]] && local_static_macros_blacklist="${ldir}/macros.blacklist.static"
+
+if [[ -n "$global_static_macros_blacklist" || -n "$local_static_macros_blacklist" ]]
+then
+   #TODO: Selective filtering from definitions file.
+   while read macro
+   do
+      sed -i -e "/^[[:space:]]*$macro[[:space:]]*$/d" "$macros_names"
+   done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' $global_static_macros_blacklist $local_static_macros_blacklist )
+fi
+
+if [[ -n "$global_static_functions_blacklist" || -n "$local_static_functions_blacklist" ]]
+then
+   #TODO: Selective filtering from definitions file.
+   while read func
+   do
+      sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$inline_names"
+      sed -i -e "/^[[:space:]]*$func[[:space:]]*$/d" "$export_names"
+   done < <( sed -e 's/\#.*$//g' -e '/^[[:space:]]*$/d' $global_static_functions_blacklist $local_static_functions_blacklist )
+fi
+
+
+if [[ "$root_function" != 'all' ]]
+then
+   
+   for i in "$inline_blacklist" "$export_blacklist" "$macros_blacklist"
+   do
+      sort -u -o "$i" "$i" &
+   done
+   wait
+   
    tmp="$(mktemp)"
    comm -23 "$inline_definitions" "$inline_blacklist" > "$tmp" && cp -f "$tmp" "$inline_definitions"
    comm -23 "$export_definitions" "$export_blacklist" > "$tmp" && cp -f "$tmp" "$export_definitions"
