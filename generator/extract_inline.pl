@@ -7,11 +7,13 @@ use feature qw(say);
 
 undef $/;
 
-while ( <> ) {
-   while (
-   /
-      ^
-      [ \t]*
+my $file = <>;
+
+$file =~ s#/\*[^*]*\*+([^/*][^*]*\*+)*/|//([^\\]|[^\n][\n]?)*?\n|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)#defined $3 ? $3 : ""#gse;
+
+
+while ( $file =~
+   m/
       (?<fdecl>
          static
          \s+
@@ -71,23 +73,22 @@ while ( <> ) {
       )
    /gmx
    ) {
-      say $+{fname};
-      
-      my $decl = $+{fdecl};
-      
-      $decl =~ s/\n/ /g;
-      $decl =~ s/^[ \t]*$//g;
-      $decl =~ s/^[ \t]*//g;
-      $decl =~ s/\s{2,}/ /g;
-      $decl =~ s/\*\s+/*/g;
-      $decl =~ s/\b\*/ */g;
-      $decl =~ s/\*\s+\*/**/g;
-      $decl =~ s/(\w+)\s+\(/$1(/g;
-      
-      $decl =~ s/\s__(:?always_)?inline(:?__)?\s/ inline /;
-      $decl =~ s/(?<br>\((?:(?>[^\(\)]+)|(?&br))+\))\s*$/(..)/;
-      
-      say $decl;
-   }
+   say $+{fname};
+   
+   my $decl = $+{fdecl};
+   
+   $decl =~ s/\n/ /g;
+   $decl =~ s/^[ \t]*$//g;
+   $decl =~ s/^[ \t]*//g;
+   $decl =~ s/\s{2,}/ /g;
+   $decl =~ s/\*\s+/*/g;
+   $decl =~ s/\b\*/ */g;
+   $decl =~ s/\*\s+\*/**/g;
+   $decl =~ s/(\w+)\s+\(/$1(/g;
+   
+   $decl =~ s/\s__(:?always_)?inline(:?__)?\s/ inline /;
+   $decl =~ s/(?<br>\((?:(?>[^\(\)]+)|(?&br))+\))\s*$/(..)/;
+   
+   say $decl;
 }
 
