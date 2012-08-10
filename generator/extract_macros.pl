@@ -7,11 +7,12 @@ use feature qw(say);
 
 undef $/;
 
-while ( <> ) {
-   while (
+my $file = <>;
+
+$file =~ s#/\*[^*]*\*+([^/*][^*]*\*+)*/|//([^\\]|[^\n][\n]?)*?\n|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)#defined $3 ? $3 : ""#gse;
+
+while ( $file =~
    /
-      ^
-      [ \t]*
       \#[ \t]*define
       [ \t]+
       (?<mdecl>
@@ -19,16 +20,15 @@ while ( <> ) {
            \([\w\s,\.]*\)      # arguments. non-argument macros is possible
       )
    /gmx
-   ) {
-      say $+{mname};
-      
-      my $decl = $+{mdecl};
-      
-      $decl =~ s/\n/ /g;
-      $decl =~ s/^[ \t]*$//g;
-      $decl =~ s/^[ \t]*//g;
-      $decl =~ s/\s+//g;
-      say $decl;
-   }
+) {
+   say $+{mname};
+   
+   my $decl = $+{mdecl};
+   
+   $decl =~ s/\n/ /g;
+   $decl =~ s/^[ \t]*$//g;
+   $decl =~ s/^[ \t]*//g;
+   $decl =~ s/\s+//g;
+   say $decl;
 }
 
