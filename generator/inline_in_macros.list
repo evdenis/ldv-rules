@@ -1,0 +1,14 @@
+# TODO:
+# Cscope problems with these functions.
+# -> Callgraph problems.
+# Some of these functions are legal.
+
+early_platform_driver_setup_func
+__exittest
+fn
+FNAME
+FNNAME
+__inittest
+name
+__NAME
+
