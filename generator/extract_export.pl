@@ -50,25 +50,6 @@ $file =~ s/
 $file =~ s/
    ^
    [ \t]*
-   (?!if|for|return|while)
-   \w+
-   [ \t]*
-   (?<margs>
-      \(
-         (?:
-            (?>[^\(\)\n\{\;\}]+)
-            |
-            (?&margs)
-         )+
-      \)
-      [ \t]*
-      \n
-   )(?!\s*[\{\\;])
-//gmx;
-
-$file =~ s/
-   ^
-   [ \t]*
    \#
    [ \t]*
    (?:
@@ -105,6 +86,26 @@ $file =~ s/
    .+
    $
 //gmx;
+
+$file =~ s/
+   ^
+   [ \t]*
+   (?!if|for|return|while)
+   \w+
+   [ \t]*
+   (?<margs>
+      \(
+         (?:
+            (?>[^\(\)\n\{\;\}]+)
+            |
+            (?&margs)
+         )+
+      \)
+      [ \t]*
+      \n
+   )(?!\s*[\{\\;])
+//gmx;
+
 
 my @exported = $file =~ m/EXPORT_SYMBOL(?:_GPL(?:_FUTURE)?)?\s*\(\s*(\w+)\s*\)\s*;/gm;
 
