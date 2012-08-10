@@ -46,6 +46,7 @@ around: execution( static inline void rcu_read_lock( void ) )
 around: execution( static inline void rcu_read_unlock( void ) )
 {
    --ldv_rcu_nested;
+   ldv_assert( ldv_rcu_nested >= 0 );
    if ( ldv_rcu_nested == 0 ) {
       ldv_check_rcu_unlock();
       ldv_rcu_dereference = 0;
@@ -71,6 +72,7 @@ around: execution( static inline void rcu_read_lock_bh( void ) )
 around: execution( static inline void rcu_read_unlock_bh( void ) )
 {
    --ldv_rcu_bh_nested;
+   ldv_assert( ldv_rcu_bh_nested >= 0 );
    if ( ldv_rcu_bh_nested == 0 ) {
       ldv_check_rcu_bh_unlock();
       ldv_rcu_bh_dereference = 0;
@@ -96,6 +98,7 @@ around: execution( static inline void rcu_read_lock_sched( void ) )
 around: execution( static inline void rcu_read_unlock_sched( void ) )
 {
    --ldv_rcu_sched_nested;
+   ldv_assert( ldv_rcu_sched_nested >= 0 );
    if ( ldv_rcu_sched_nested == 0 ) {
       ldv_check_rcu_sched_unlock();
       ldv_rcu_sched_dereference = 0;
@@ -122,6 +125,7 @@ around: execution( static inline int srcu_read_lock( struct srcu_struct *sp ) )
 around: execution( static inline void srcu_read_unlock( struct srcu_struct *sp, int idx ) )
 {
    --ldv_srcu_nested;
+   ldv_assert( ldv_srcu_nested >= 0 );
    if ( ldv_srcu_nested == 0 ) {
       ldv_check_srcu_unlock();
       ldv_srcu_dereference = 0;
