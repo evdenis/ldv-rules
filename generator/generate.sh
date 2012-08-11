@@ -41,6 +41,36 @@ generate_cscope ()
    local remove=''
    local -i err=0
    
+   all_sources ()
+   {
+      local pattern='*.[ch]'
+      local cmd="-type f -name $pattern -print"
+      local ignore="( -name SCCS -o -name BitKeeper -o -name .svn -o \
+                      -name CVS  -o -name .pc       -o -name .hg  -o \
+                      -name .git -o -name .tmp_versions )            \
+                      -prune -o"
+      
+      # Don't know whether order matters or not.
+      local x86_includes="$(find ./arch/x86/ -type d -name 'include')"
+      find $x86_includes $ignore $cmd
+      find ./include/ $ignore -path ./include/generated -prune -o $cmd
+      
+      # Every other arch include
+      local other_includes="$(find ./arch/ -path ./arch/x86 -prune -o -type d -name 'include' -print | sort)"
+      find $other_includes $ignore $cmd
+      
+      # Other sources
+      local filter='( '
+      for i in $x86_includes $other_includes
+      do
+         filter="$filter -path $i -o"
+      done
+      filter="$(echo "$filter" | head -c -3) ) -prune -o"
+      local dirs="$(find . -maxdepth 1 \( -path ./Documentation -o -path ./firmware -o -path ./samples -o -path ./scripts  \
+                    -o -path ./tools -o -path ./include -o -path ./.git -o -path ./.tmp_versions \) -prune -o -type d -print | grep -v -e '^\.$')"
+      find $dirs $filter $ignore $cmd
+   }
+   
    if [[ ! ( -r "${dir}/cscope.files" && -r "${dir}/cscope.out" && -r "${dir}/cscope.out.in" && -r "${dir}/cscope.out.po" ) ]]
    then
       pushd "$dir" > /dev/null
@@ -49,10 +79,8 @@ generate_cscope ()
             git_usage=yes
             git stash save | grep -q -F 'No local changes to save'
             git_save=$?
-            remove='rm -f %'
          else
             extension=".orig_$$"
-            remove="mv -f % %${extension}"
          fi
          
          grep --include='*.[ch]' --null -lre '__\(\(acquire\|release\)s\|printf\|scanf\|aligned\|attribute__\)\|defined' "$dir" |
@@ -66,9 +94,9 @@ generate_cscope ()
                    s/__attribute__[ \t]*\((?<b>\((?:[^\(\)]|(?&b))*\))\)[ \t]*//g;
                    print;' \
                '%'
-         find "$dir" -type f -name '*.S' -print0 | xargs --null --max-lines=1 --max-procs=$threads_num --no-run-if-empty -I % $remove
          
-         make ALLSOURCE_ARCHS=all cscope || err=1
+         (echo \-k; echo \-q; all_sources) > cscope.files
+         cscope -b -f cscope.out || err=1
          
          if [[ $git_usage == 'yes' ]]
          then
