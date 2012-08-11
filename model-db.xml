@@ -49,7 +49,7 @@
       <description></description>
       <hints>
          <rerouter>
-            <map>spin_lock</map>
+            <map>ldv_spin_lock</map>
             <foreach>ldv_init</foreach>
             <placeholder>TEMPLATE</placeholder>
          </rerouter>
