@@ -12,7 +12,7 @@ int ldv_spinlock_in_process_flag_TEMPLATE = 0;
 int ldv_spinlock_in_interrupt_flag_TEMPLATE = 0;
 
 
-static inline void ldv_spin_lock_TEMPLATE( spinlock_t *lock )
+void ldv_spin_lock_TEMPLATE( spinlock_t *lock )
 {
    if ( LDV_IN_INTERRUPT == 2 ) {
       ++ldv_spinlock_in_interrupt_flag_TEMPLATE;
@@ -22,7 +22,7 @@ static inline void ldv_spin_lock_TEMPLATE( spinlock_t *lock )
    ldv_assert( ldv_spinlock_in_interrupt_flag_TEMPLATE && ldv_spinlock_in_process_flag_TEMPLATE  );
 }
 
-void ldv_init_TEMPLATE( void )
+void ldv_initialize_TEMPLATE( void )
 {
    ldv_spinlock_in_process_flag_TEMPLATE = 0;
    ldv_spinlock_in_interrupt_flag_TEMPLATE = 0;
