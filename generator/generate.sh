@@ -43,8 +43,6 @@ generate_cscope ()
    
    all_sources ()
    {
-      local pattern='*.[ch]'
-      local cmd="-type f -name $pattern -print"
       local ignore="( -name SCCS -o -name BitKeeper -o -name .svn -o \
                       -name CVS  -o -name .pc       -o -name .hg  -o \
                       -name .git -o -name .tmp_versions )            \
@@ -52,12 +50,12 @@ generate_cscope ()
       
       # Don't know whether order matters or not.
       local x86_includes="$(find ./arch/x86/ -type d -name 'include')"
-      find $x86_includes $ignore $cmd
-      find ./include/ $ignore -path ./include/generated -prune -o $cmd
+      find $x86_includes $ignore -type f -name '*.[ch]' -print
+      find ./include/ $ignore -path ./include/generated -prune -o -type f -name '*.[ch]' -print
       
       # Every other arch include
       local other_includes="$(find ./arch/ -path ./arch/x86 -prune -o -type d -name 'include' -print | sort)"
-      find $other_includes $ignore $cmd
+      find $other_includes $ignore -type f -name '*.[ch]' -print
       
       # Other sources
       local filter='( '
@@ -68,7 +66,7 @@ generate_cscope ()
       filter="$(echo "$filter" | head -c -3) ) -prune -o"
       local dirs="$(find . -maxdepth 1 \( -path ./Documentation -o -path ./firmware -o -path ./samples -o -path ./scripts  \
                     -o -path ./tools -o -path ./include -o -path ./.git -o -path ./.tmp_versions \) -prune -o -type d -print | grep -v -e '^\.$')"
-      find $dirs $filter $ignore $cmd
+      find $dirs $filter $ignore -type f -name '*.[ch]' -print
    }
    
    if [[ ! ( -r "${dir}/cscope.files" && -r "${dir}/cscope.out" && -r "${dir}/cscope.out.in" && -r "${dir}/cscope.out.po" ) ]]
