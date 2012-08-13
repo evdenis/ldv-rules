@@ -47,7 +47,7 @@ end
 graph = RGL::DirectedAdjacencyGraph.new
 root = Node.new(ARGV[1])
 graph.add_vertex(root)
-%x[pushd #{ARGV[0]} > /dev/null; cscope -d -L -3#{root.id} | cut -d ' ' -f 2 | sort -u | grep -v -e '^panic$' -e '^BUG$' -e '^BUG_ON$'; popd > /dev/null;].split( ' ' ).each { |v|
+%x[pushd #{ARGV[0]} > /dev/null; cscope -d -L -3#{root.id} | cut -d ' ' -f 2 | sort -u | grep -v -e '^panic$' -e '^BUG$' -e '^BUG_ON$' -e '^FNAME$' -e '^FNNAME$'; popd > /dev/null;].split( ' ' ).each { |v|
    graph.add_edge(root, Node.new(v))
 }
 root.mark
@@ -87,7 +87,7 @@ loop do
       lgraph = RGL::DirectedAdjacencyGraph.new
       varray = Array.new
       lgraph.add_vertex(lroot)
-      %x[pushd #{ARGV[0]} > /dev/null; cscope -d -L -3#{lroot.id} | cut -d ' ' -f 2 | sort -u | grep -v -e '^panic$' -e '^BUG$' -e '^BUG_ON$'; popd > /dev/null;].split( ' ' ).each { |v|
+      %x[pushd #{ARGV[0]} > /dev/null; cscope -d -L -3#{lroot.id} | cut -d ' ' -f 2 | sort -u | grep -v -e '^panic$' -e '^BUG$' -e '^BUG_ON$' -e '^FNAME$' -e '^FNNAME$'; popd > /dev/null;].split( ' ' ).each { |v|
          varray.push(Node.new(v))
       }
       semaphore.synchronize {
