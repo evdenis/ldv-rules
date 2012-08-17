@@ -8,9 +8,13 @@
 
 MODULE_LICENSE( "GPL" );
 
+static DEFINE_SPINLOCK( lock );
+
 static irqreturn_t
 dummy_irq_handler1( int irq, void *dev_id )
 {
+   spin_lock( &lock );
+   spin_unlock( &lock );
    return IRQ_HANDLED;
 }
 
@@ -92,6 +96,8 @@ read_proc(char *buffer, char **start, off_t offset, int size, int *eof, void *da
       return 0;
    strcpy(buffer, hello_str);
    *eof = 1;
+   spin_lock_irq( &lock );
+   spin_unlock_irq( &lock );
 
    return len;
 

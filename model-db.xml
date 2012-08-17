@@ -50,7 +50,11 @@
       <hints>
          <rerouter>
             <map>ldv_spin_lock</map>
+            <map>ldv_spin_lock_bh</map>
+            <map>ldv_spin_lock_irq</map>
+            <map>ldv_spin_lock_irqsave</map>
             <foreach>ldv_initialize</foreach>
+            <foreach>ldv_check_final_state</foreach>
             <placeholder>TEMPLATE</placeholder>
          </rerouter>
       </hints>

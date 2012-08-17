@@ -5,26 +5,60 @@
 
 extern int LDV_IN_INTERRUPT;
 
-extern int ldv_spinlock_in_process_flag_TEMPLATE;
-extern int ldv_spinlock_in_interrupt_flag_TEMPLATE;
+extern int ldv_lock_in_process_flag_TEMPLATE;
+extern int ldv_lock_in_interrupt_flag_TEMPLATE;
 
-int ldv_spinlock_in_process_flag_TEMPLATE = 0;
-int ldv_spinlock_in_interrupt_flag_TEMPLATE = 0;
+int ldv_lock_in_process_flag_TEMPLATE = 0;
+int ldv_lock_in_interrupt_flag_TEMPLATE = 0;
 
+#define __ldv_lock_in_interrupt()               \
+   do {                                         \
+      if ( LDV_IN_INTERRUPT == 2 ) {            \
+         ++ldv_lock_in_interrupt_flag_TEMPLATE; \
+      }                                         \
+   } while(0)
 
-void ldv_spin_lock_TEMPLATE( spinlock_t *lock )
+#define __ldv_lock_in_process()               \
+   do {                                       \
+      if ( LDV_IN_INTERRUPT == 1 ) {          \
+         ++ldv_lock_in_process_flag_TEMPLATE; \
+      }                                       \
+   } while(0)
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Check the final state  */
+void ldv_check_final_state_TEMPLATE(void)
 {
-   if ( LDV_IN_INTERRUPT == 2 ) {
-      ++ldv_spinlock_in_interrupt_flag_TEMPLATE;
-   } else if ( LDV_IN_INTERRUPT == 1 ) {
-      ++ldv_spinlock_in_process_flag_TEMPLATE;
-   }
-   ldv_assert( ldv_spinlock_in_interrupt_flag_TEMPLATE && ldv_spinlock_in_process_flag_TEMPLATE  );
+   ldv_assert( ( ldv_lock_in_interrupt_flag_TEMPLATE == 0 ) ||  ( ldv_lock_in_process_flag_TEMPLATE == 0 ) );
 }
 
-void ldv_initialize_TEMPLATE( void )
+void ldv_spin_lock_TEMPLATE(spinlock_t *lock)
 {
-   ldv_spinlock_in_process_flag_TEMPLATE = 0;
-   ldv_spinlock_in_interrupt_flag_TEMPLATE = 0;
+   __ldv_lock_in_interrupt();
+   __ldv_lock_in_process();
 }
+
+void ldv_spin_lock_bh_TEMPLATE(spinlock_t *lock)
+{
+   __ldv_lock_in_interrupt();
+   __ldv_lock_in_process();
+}
+
+void ldv_spin_lock_irq_TEMPLATE(spinlock_t *lock)
+{
+   __ldv_lock_in_interrupt();
+}
+
+void ldv_spin_lock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
+{
+   __ldv_lock_in_interrupt();
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_initialize') Initialize lock variables */
+void ldv_initialize_TEMPLATE(void)
+{
+   /* LDV_COMMENT_ASSERT Initialize lock with initial model value*/
+   ldv_lock_in_process_flag_TEMPLATE = 0;
+   ldv_lock_in_interrupt_flag_TEMPLATE = 0;
+}
+
 
