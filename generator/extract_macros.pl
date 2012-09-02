@@ -17,7 +17,7 @@ while ( $file =~
       [ \t]+
       (?<mdecl>
          (?<mname>\w+)
-           \([\w\s,\.]*\)      # arguments. non-argument macros is possible
+           \([\w\s,\.]*\)      # arguments. non-argument macros are possible
       )
    /gmx
 ) {
