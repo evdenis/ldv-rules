@@ -1,1 +1,1 @@
-utilizing spin_lock_irq instead spin_lock in case there same lock is handled in process and interrupt contexts
+spin_lock with same lock in interrupt context and process context

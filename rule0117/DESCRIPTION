@@ -1,1 +1,1 @@
-local_irq_save/local_irq_restore && local_irq_enable/local_irq_disable pairs one another nesting check
+local_irq_save/local_irq_restore && local_irq_enable/local_irq_disable pairs nesting check

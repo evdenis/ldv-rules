@@ -1,3 +1,1 @@
-threaded_irq_context
-default handler without IRQF_ONESHOT
-
+request_threaded_irq: default IRQ handler without IRQF_ONESHOT flag
