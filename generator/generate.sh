@@ -43,6 +43,7 @@ generate_cscope ()
    
    all_sources ()
    {
+      set +x
       local ignore="( -name SCCS -o -name BitKeeper -o -name .svn -o \
                       -name CVS  -o -name .pc       -o -name .hg  -o \
                       -name .git -o -name .tmp_versions )            \
@@ -67,6 +68,7 @@ generate_cscope ()
       local dirs="$(find . -maxdepth 1 \( -path ./Documentation -o -path ./firmware -o -path ./samples -o -path ./scripts  \
                     -o -path ./tools -o -path ./include -o -path ./.git -o -path ./.tmp_versions \) -prune -o -type d -print | grep -v -e '^\.$')"
       find $dirs $filter $ignore -type f -name '*.[ch]' -print
+      set -x
    }
    
    if [[ ! ( -r "${dir}/cscope.files" && -r "${dir}/cscope.out" && -r "${dir}/cscope.out.in" && -r "${dir}/cscope.out.po" ) ]]
