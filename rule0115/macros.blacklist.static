@@ -1,6 +1,3 @@
-kmalloc
-kzalloc
-
 set_bit
 
 readb
