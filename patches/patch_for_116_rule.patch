@@ -6,10 +6,10 @@ index e7deadf..7267122 100755
      # report visualization.
      print_debug_trace("Concatenate a common model with the first input file");
  
--    # Drity hack for 39_7 and 116 models; should be resolved with properly written aspect!
--    if ( $opt_model_id eq "39_7" || $opt_model_id eq "116" )
-+    # Drity hack for 39_7 model; should be resolved with properly written aspect!
-+    if ( $opt_model_id eq "39_7")
++    # Drity hack for 39_7 and 116 models; should be resolved with properly written aspect!
++    if ( $opt_model_id eq "39_7" || $opt_model_id eq "116" )
+-    # Drity hack for 39_7 model; should be resolved with properly written aspect!
+-    if ( $opt_model_id eq "39_7")
      {
        my $in = $cmd->first_child($xml_cmd_in);
        my $in_file = $in->text;
