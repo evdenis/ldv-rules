@@ -11,6 +11,8 @@ extern int ldv_lock_in_interrupt_flag_TEMPLATE;
 int ldv_lock_in_process_flag_TEMPLATE = 0;
 int ldv_lock_in_interrupt_flag_TEMPLATE = 0;
 
+int ldv_irq_disable = 0;
+
 #define __ldv_lock_in_interrupt()               \
    do {                                         \
       if ( LDV_IN_INTERRUPT == 2 ) {            \
@@ -18,11 +20,11 @@ int ldv_lock_in_interrupt_flag_TEMPLATE = 0;
       }                                         \
    } while(0)
 
-#define __ldv_lock_in_process()               \
-   do {                                       \
-      if ( LDV_IN_INTERRUPT == 1 ) {          \
-         ++ldv_lock_in_process_flag_TEMPLATE; \
-      }                                       \
+#define __ldv_lock_in_process()                                               \
+   do {                                                                       \
+      if ( ( LDV_IN_INTERRUPT == 1 ) && ( ldv_irq_disable <= 0 ) ) {          \
+         ++ldv_lock_in_process_flag_TEMPLATE;                                 \
+      }                                                                       \
    } while(0)
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Check the final state  */
@@ -51,6 +53,26 @@ void ldv_spin_lock_irq_TEMPLATE(spinlock_t *lock)
 void ldv_spin_lock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 {
    __ldv_lock_in_interrupt();
+}
+
+void ldv_local_irq_disable( void )
+{
+   ++ldv_irq_disable;
+}
+
+void ldv_local_irq_enable( void )
+{
+   --ldv_irq_enable;
+}
+
+void ldv_local_irq_save( void )
+{
+   ++ldv_irq_disable;
+}
+
+void ldv_local_irq_restore( void )
+{
+   --ldv_irq_enable;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_initialize') Initialize lock variables */

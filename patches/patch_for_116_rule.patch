@@ -1,15 +1,66 @@
+diff --git a/dscv/rcv/cil b/dscv/rcv/cil
+--- a/dscv/rcv/cil
++++ b/dscv/rcv/cil
+@@ -1 +1 @@
+-Subproject commit 3efc543e49934f09c4ff681426a686cf51e72b8f
++Subproject commit 3efc543e49934f09c4ff681426a686cf51e72b8f-dirty
+diff --git a/rule-instrumentor/aspectator/gcc-4.6 b/rule-instrumentor/aspectator/gcc-4.6
+--- a/rule-instrumentor/aspectator/gcc-4.6
++++ b/rule-instrumentor/aspectator/gcc-4.6
+@@ -1 +1 @@
+-Subproject commit 9603e7f825aab697bdc0c863b99d870ca5ef0e80
++Subproject commit 9603e7f825aab697bdc0c863b99d870ca5ef0e80-dirty
 diff --git a/rule-instrumentor/rule-instrumentor.pl b/rule-instrumentor/rule-instrumentor.pl
-index e7deadf..7267122 100755
+index 7267122..4bb1888 100755
 --- a/rule-instrumentor/rule-instrumentor.pl
 +++ b/rule-instrumentor/rule-instrumentor.pl
 @@ -1611,8 +1611,8 @@ sub process_cmd_cc()
      # report visualization.
      print_debug_trace("Concatenate a common model with the first input file");
  
-+    # Drity hack for 39_7 and 116 models; should be resolved with properly written aspect!
-+    if ( $opt_model_id eq "39_7" || $opt_model_id eq "116" )
 -    # Drity hack for 39_7 model; should be resolved with properly written aspect!
 -    if ( $opt_model_id eq "39_7")
++    # Drity hack for 39_7 and 116 models; should be resolved with properly written aspect!
++    if ( $opt_model_id eq "39_7" || $opt_model_id eq "116" )
      {
        my $in = $cmd->first_child($xml_cmd_in);
        my $in_file = $in->text;
+@@ -1640,7 +1640,11 @@ sub process_cmd_cc()
+                 "int ldv_spin_is_contended(spinlock_t *lock);",
+                 "int ldv_spin_can_lock(spinlock_t *lock);",
+                 "int ldv_atomic_dec_and_lock(spinlock_t *lock, atomic_t *atomic);".
+-    "\n#define ldv_atomic_dec_and_lock_macro(atomic,lock) ldv_atomic_dec_and_lock(lock,atomic)"
++    "\n#define ldv_atomic_dec_and_lock_macro(atomic,lock) ldv_atomic_dec_and_lock(lock,atomic)",
++                "void ldv_local_irq_disable(void);",
++                "void ldv_local_irq_enable(void);",
++                "void ldv_local_irq_save(void);",
++                "void ldv_local_irq_restore(void);"
+                );
+       my @keys = ("spin_lock_irqsave",
+                "spin_lock_nested",
+@@ -1661,7 +1665,11 @@ sub process_cmd_cc()
+                "spin_is_locked",
+                "spin_is_contended",
+                "spin_can_lock",
+-               "atomic_dec_and_lock"
++               "atomic_dec_and_lock",
++               "local_irq_disable",
++               "local_irq_enable",
++               "local_irq_save",
++               "local_irq_restore"
+               );
+       my @replacements = ("ldv_spin_lock_irqsave",
+                        "ldv_spin_lock_nested",
+@@ -1682,7 +1690,11 @@ sub process_cmd_cc()
+                        "ldv_spin_is_locked",
+                        "ldv_spin_is_contended",
+                        "ldv_spin_can_lock",
+-                     "ldv_atomic_dec_and_lock_macro"
++                     "ldv_atomic_dec_and_lock_macro",
++                       "ldv_local_irq_disable",
++                       "ldv_local_irq_enable",
++                       "ldv_local_irq_save",
++                       "ldv_local_irq_restore"
+                       );
+ 
+       print_debug_trace("Replace defines by model functions for model ".$opt_model_id);
