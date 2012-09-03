@@ -3,10 +3,12 @@
 before: file("$this")
 {
 
+/* workaround for Cil bug */
 #define const
 
 extern void ldv_check( void );
 }
+
 
 new: file(LDV_COMMON_MODEL)
 {
@@ -15,27 +17,19 @@ new: file(LDV_COMMON_MODEL)
 
 extern int LDV_IN_INTERRUPT;
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for process context*/
 void
 ldv_check( void )
 {
+   /* LDV_COMMENT_ASSERT Function should be used in interrupt context carefully, as it may accidentally reenable interrupts*/
    ldv_assert( LDV_IN_INTERRUPT == 1 );
 }
 
 }
 
-around: define(on_each_cpu(func,info,wait))
-{
-   ({ ldv_check(); 0; })
-}
-
-after: call(int on_each_cpu(..))
-{
-   ldv_check();
-}
 
 around: define( local_irq_enable() )
 {
    ldv_check()
 }
-
 
