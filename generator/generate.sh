@@ -397,7 +397,7 @@ aspects="$(mktemp)"
       done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
    done
    perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*call\s*\()//m; print $file;' "${aspects}.1"
-   echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.1"
+   echo -e "{\n   /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function*/\n   ldv_check();\n}\n" >> "${aspects}.1"
 )&
 
 if [[ "$generation" == 'full' ]]
@@ -412,7 +412,7 @@ then
          done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
       done
       perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
-      echo -e "{\n\tldv_check();\n}\n" >> "${aspects}.2"
+      echo -e "{\n   /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function*/\n   ldv_check();\n}\n" >> "${aspects}.2"
    )&
 
    #Latter generation scheme doesn't work for macros.
@@ -421,7 +421,7 @@ then
       do
          while read i
          do
-            echo -e "around: define( $(echo -n "$i") )\n{\n\t({ ldv_check(); 0; })\n}\n" >> "${aspects}.3"
+            echo -e "around: define( $(echo -n "$i") )\n{\n   ({\n      /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function*/\n      ldv_check(); 0;\n   })\n}\n" >> "${aspects}.3"
          done < <( grep -e "^$macros[[:space:]]*(" "$macros_definitions" )
       done
    )&
