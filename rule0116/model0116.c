@@ -37,43 +37,51 @@ void ldv_check_final_state_TEMPLATE(void)
    ldv_assert( ( ldv_lock_in_interrupt_flag_TEMPLATE == 0 ) ||  ( ldv_lock_in_process_flag_TEMPLATE == 0 ) );
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock') */
 void ldv_spin_lock_TEMPLATE(spinlock_t *lock)
 {
    __ldv_lock_in_interrupt();
    __ldv_lock_in_process();
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_bh') */
 void ldv_spin_lock_bh_TEMPLATE(spinlock_t *lock)
 {
    __ldv_lock_in_interrupt();
    __ldv_lock_in_process();
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_irq') */
 void ldv_spin_lock_irq_TEMPLATE(spinlock_t *lock)
 {
    __ldv_lock_in_interrupt();
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_irqsave') */
 void ldv_spin_lock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 {
    __ldv_lock_in_interrupt();
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_disable') */
 void ldv_local_irq_disable( void )
 {
    ++ldv_irq_disable_nesting;
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_enable') */
 void ldv_local_irq_enable( void )
 {
    --ldv_irq_disable_nesting;
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_save') */
 void ldv_local_irq_save( void )
 {
    ++ldv_irq_disable_nesting;
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_restore') */
 void ldv_local_irq_restore( void )
 {
    --ldv_irq_disable_nesting;
