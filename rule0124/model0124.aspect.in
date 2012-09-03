@@ -3,6 +3,7 @@
 before: file("$this")
 {
 
+/* workaround for Cil bug */
 #define const
 
 extern int ldv_rcu_read_lock_nested;
@@ -10,54 +11,66 @@ extern int ldv_rcu_read_lock_nested;
 extern void ldv_check( void );
 }
 
+
 new: file(LDV_COMMON_MODEL)
 {
 
 #include <ldv.h>
 
+/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu locks nesting*/
 int ldv_rcu_read_lock_nested = 0;
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for not holding rcu lock*/
 void
 ldv_check( void )
 {
+   /* LDV_COMMENT_ASSERT might_sleep functions should not be called under rcu locks*/
    ldv_assert( ldv_rcu_read_lock_nested == 0 );
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each lock there is unlock*/
 void
-ldv_ldv_check_final_state( void )
+ldv_check_final_state( void )
 {
    ldv_check();
 }
 
 }
 
+
 around: execution( static inline void rcu_read_lock( void ) )
 {
+   /* LDV_COMMENT_STATE_CHANGE Increase the level of rcu locks nesting*/
    ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock( void ) )
 {
+   /* LDV_COMMENT_STATE_CHANGE Decrease the level of rcu locks nesting*/
    --ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_lock_bh( void ) )
 {
+   /* LDV_COMMENT_STATE_CHANGE Increase the level of rcu locks nesting*/
    ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock_bh( void ) )
 {
+   /* LDV_COMMENT_STATE_CHANGE Decrease the level of rcu locks nesting*/
    --ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_lock_sched( void ) )
 {
+   /* LDV_COMMENT_STATE_CHANGE Increase the level of rcu locks nesting*/
    ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock_sched( void ) )
 {
+   /* LDV_COMMENT_STATE_CHANGE Decrease the level of rcu locks nesting*/
    --ldv_rcu_read_lock_nested;
 }
 
