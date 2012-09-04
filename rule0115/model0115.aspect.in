@@ -17,11 +17,11 @@ new: file(LDV_COMMON_MODEL)
 
 extern int LDV_IN_INTERRUPT;
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for process context*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for process context.*/
 void
 ldv_check( void )
 {
-   /* LDV_COMMENT_ASSERT might_sleep functions should not be called in interrupt handler(not threaded)*/
+   /* LDV_COMMENT_ASSERT might_sleep functions should not be called in interrupt handler(not threaded).*/
    ldv_assert( LDV_IN_INTERRUPT == 1 );
 }
 

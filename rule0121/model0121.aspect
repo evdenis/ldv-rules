@@ -28,11 +28,11 @@ new: file(LDV_COMMON_MODEL)
 {
 #include <ldv.h>
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks that either handler is not null or there is IRQF_ONESHOT in flags*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks that either handler is not null or there is IRQF_ONESHOT in flags.*/
 void
 ldv_check( void *handler, unsigned long flags )
 {
-   /* LDV_COMMENT_ASSERT If the default handler is used then IRQF_ONESHOT should be passed*/
+   /* LDV_COMMENT_ASSERT If the default handler is used then IRQF_ONESHOT should be passed.*/
    ldv_assert( ( ( handler == 0 ) && ( flags >= 0x10000000 ) ) || ( handler != 0 ) );
 }
 

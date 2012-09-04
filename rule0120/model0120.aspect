@@ -117,16 +117,16 @@ new: file(LDV_COMMON_MODEL)
 {
 #include <ldv.h>
 
-/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_lock nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_lock nesting.*/
 int ldv_rcu_nested = 0;
-/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_bh_lock nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_bh_lock nesting.*/
 int ldv_rcu_bh_nested = 0;
-/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_sched_lock nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_sched_lock nesting.*/
 int ldv_rcu_sched_nested = 0;
-/* LDV_COMMENT_MODEL_STATE Indicates the level of srcu_lock nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of srcu_lock nesting.*/
 int ldv_srcu_nested = 0;
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each lock there is unlock*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each lock there is unlock.*/
 void
 ldv_check_final_state( void )
 {
@@ -139,67 +139,67 @@ ldv_check_final_state( void )
 /*The order of lock/unlock check is very simple and not reliable enough.
 Actually, I don't think that it should be implemented in this rule.*/
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_unlock') Checks that unlock occurs after lock*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_unlock') Checks that unlock occurs after lock.*/
 void
 ldv_check_rcu_unlock( void )
 {
-   /* LDV_COMMENT_ASSERT checks the order of rcu_read{lock,unlock}*/
+   /* LDV_COMMENT_ASSERT checks the order of rcu_read{lock,unlock}.*/
    ldv_assert( ldv_rcu_nested >= 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_dereference') Checks for proper rcu_dereference*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_dereference') Checks for proper rcu_dereference.*/
 void
 ldv_check_rcu_dereference( void )
 {
-   /* LDV_COMMENT_ASSERT rcu_dereference should be used only within rcu_read_lock section*/
+   /* LDV_COMMENT_ASSERT rcu_dereference should be used only within rcu_read_lock section.*/
    ldv_assert( ldv_rcu_nested > 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_bh_unlock') Checks that unlock occurs after lock*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_bh_unlock') Checks that unlock occurs after lock.*/
 void
 ldv_check_rcu_bh_unlock( void )
 {
-   /* LDV_COMMENT_ASSERT checks the order of rcu_bh_read{lock,unlock}*/
+   /* LDV_COMMENT_ASSERT checks the order of rcu_bh_read{lock,unlock}.*/
    ldv_assert( ldv_rcu_bh_nested >= 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_bh_dereference') Checks for proper rcu_bh_dereference*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_bh_dereference') Checks for proper rcu_bh_dereference.*/
 void
 ldv_check_rcu_bh_dereference( void )
 {
-   /* LDV_COMMENT_ASSERT rcu_bh_dereference should be used only within rcu_bh_read_lock section*/
+   /* LDV_COMMENT_ASSERT rcu_bh_dereference should be used only within rcu_bh_read_lock section.*/
    ldv_assert( ldv_rcu_bh_nested > 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_sched_unlock') Checks that unlock occurs after lock*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_sched_unlock') Checks that unlock occurs after lock.*/
 void
 ldv_check_rcu_sched_unlock( void )
 {
-   /* LDV_COMMENT_ASSERT checks the order of rcu_sched_read{lock,unlock}*/
+   /* LDV_COMMENT_ASSERT checks the order of rcu_sched_read{lock,unlock}.*/
    ldv_assert( ldv_rcu_sched_nested >= 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_sched_dereference') Checks for proper rcu_sched_dereference*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_rcu_sched_dereference') Checks for proper rcu_sched_dereference.*/
 void
 ldv_check_rcu_sched_dereference( void )
 {
-   /* LDV_COMMENT_ASSERT rcu_sched_dereference should be used only within rcu_sched_read_lock section*/
+   /* LDV_COMMENT_ASSERT rcu_sched_dereference should be used only within rcu_sched_read_lock section.*/
    ldv_assert( ldv_rcu_sched_nested > 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_srcu_unlock') Checks that unlock occurs after lock*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_srcu_unlock') Checks that unlock occurs after lock.*/
 void
 ldv_check_srcu_unlock( void )
 {
-   /* LDV_COMMENT_ASSERT checks the order of srcu_read{lock,unlock}*/
+   /* LDV_COMMENT_ASSERT checks the order of srcu_read{lock,unlock}.*/
    ldv_assert( ldv_srcu_nested >= 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_srcu_dereference') Checks for proper srcu_dereference*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_srcu_dereference') Checks for proper srcu_dereference.*/
 void
 ldv_check_srcu_dereference( void )
 {
-   /* LDV_COMMENT_ASSERT srcu_dereference should be used only within srcu_read_lock section*/
+   /* LDV_COMMENT_ASSERT srcu_dereference should be used only within srcu_read_lock section.*/
    ldv_assert( ldv_srcu_nested > 0 );
 }
 

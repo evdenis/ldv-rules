@@ -16,18 +16,18 @@ new: file(LDV_COMMON_MODEL)
 
 #include <ldv.h>
 
-/* LDV_COMMENT_MODEL_STATE Indicates the level of irq_disable nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of irq_disable nesting.*/
 int ldv_interrupts_disable_nested = 0;
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for enabled interrupts*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for enabled interrupts.*/
 void
 ldv_check( void )
 {
-   /* LDV_COMMENT_ASSERT might_sleep functions should not be called while interrupts disabled on the cpu*/
+   /* LDV_COMMENT_ASSERT might_sleep functions should not be called while interrupts disabled on the cpu.*/
    ldv_assert( ldv_interrupts_disable_nested == 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each irq_disable there is irq_enable*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each irq_disable there is irq_enable.*/
 void
 ldv_check_final_state( void )
 {
@@ -39,25 +39,25 @@ ldv_check_final_state( void )
 
 around: define( local_irq_disable() )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of irq_disable nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Increase the level of irq_disable nesting.*/
    ++ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_enable() )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of irq_disable nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Decrease the level of irq_disable nesting.*/
    --ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_save(flags) )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of irq_disable nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Increase the level of irq_disable nesting.*/
    ++ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_restore(flags) )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of irq_disable nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Decrease the level of irq_disable nesting.*/
    --ldv_interrupts_disable_nested
 }
 

@@ -39,52 +39,52 @@ new: file(LDV_COMMON_MODEL)
 
 #include <ldv.h>
 
-/* LDV_COMMENT_MODEL_STATE Indicates the level of local_irq_disable/local_irq_enable nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of local_irq_disable/local_irq_enable nesting.*/
 int ldv_inside_de_pair = 0;
-/* LDV_COMMENT_MODEL_STATE Indicates the level of local_irq_save/local_irq_restore nesting*/
+/* LDV_COMMENT_MODEL_STATE Indicates the level of local_irq_save/local_irq_restore nesting.*/
 int ldv_inside_sr_pair = 0;
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_de_pair') Entry in disable/enable section*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_de_pair') Entry in disable/enable section.*/
 void
 ldv_in_de_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of disable/enable nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Increase the level of disable/enable nesting.*/
    ++ldv_inside_de_pair;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_out_de_pair') Exit from disable/enable section*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_out_de_pair') Exit from disable/enable section.*/
 void
 ldv_out_de_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of disable/enable nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Decrease the level of disable/enable nesting.*/
    --ldv_inside_de_pair;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_sr_pair') Entry in save/restore section*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_sr_pair') Entry in save/restore section.*/
 void
 ldv_in_sr_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of save/restore nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Increase the level of save/restore nesting.*/
    ++ldv_inside_sr_pair;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_out_sr_pair') Exit from save/restore section*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_out_sr_pair') Exit from save/restore section.*/
 void
 ldv_out_sr_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of save/restore nesting*/
+   /* LDV_COMMENT_CHANGE_STATE Decrease the level of save/restore nesting.*/
    --ldv_inside_sr_pair;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks that the caller is outside enable/disable and save/restore sections*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks that the caller is outside enable/disable and save/restore sections.*/
 void
 ldv_check( void )
 {
-   /* LDV_COMMENT_ASSERT local_irq_enable function should not be called inside disable/enable and save/restore sections */
+   /* LDV_COMMENT_ASSERT local_irq_enable function should not be called inside disable/enable and save/restore sections.*/
    ldv_assert( ldv_inside_de_pair == 0 && ldv_inside_sr_pair == 0 );
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each disable/save there is enable/restore*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each disable/save there is enable/restore.*/
 void
 ldv_check_final_state( void )
 {

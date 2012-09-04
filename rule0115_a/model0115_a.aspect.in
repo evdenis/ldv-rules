@@ -10,7 +10,7 @@ new: file(LDV_COMMON_MODEL)
 
 #include <ldv.h>
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Stub*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Stub.*/
 void
 ldv_check( void )
 {
