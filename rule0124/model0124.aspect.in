@@ -40,37 +40,37 @@ ldv_check_final_state( void )
 
 around: execution( static inline void rcu_read_lock( void ) )
 {
-   /* LDV_COMMENT_STATE_CHANGE Increase the level of rcu locks nesting.*/
+   /* LDV_COMMENT_STATE_CHANGE Increments the level of rcu locks nesting.*/
    ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock( void ) )
 {
-   /* LDV_COMMENT_STATE_CHANGE Decrease the level of rcu locks nesting.*/
+   /* LDV_COMMENT_STATE_CHANGE Decrements the level of rcu locks nesting.*/
    --ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_lock_bh( void ) )
 {
-   /* LDV_COMMENT_STATE_CHANGE Increase the level of rcu locks nesting.*/
+   /* LDV_COMMENT_STATE_CHANGE Increments the level of rcu locks nesting.*/
    ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock_bh( void ) )
 {
-   /* LDV_COMMENT_STATE_CHANGE Decrease the level of rcu locks nesting.*/
+   /* LDV_COMMENT_STATE_CHANGE Decrements the level of rcu locks nesting.*/
    --ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_lock_sched( void ) )
 {
-   /* LDV_COMMENT_STATE_CHANGE Increase the level of rcu locks nesting.*/
+   /* LDV_COMMENT_STATE_CHANGE Increments the level of rcu locks nesting.*/
    ++ldv_rcu_read_lock_nested;
 }
 
 around: execution( static inline void rcu_read_unlock_sched( void ) )
 {
-   /* LDV_COMMENT_STATE_CHANGE Decrease the level of rcu locks nesting.*/
+   /* LDV_COMMENT_STATE_CHANGE Decrements the level of rcu locks nesting.*/
    --ldv_rcu_read_lock_nested;
 }
 

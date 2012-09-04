@@ -48,7 +48,7 @@ int ldv_inside_sr_pair = 0;
 void
 ldv_in_de_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of disable/enable nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of disable/enable nesting.*/
    ++ldv_inside_de_pair;
 }
 
@@ -56,7 +56,7 @@ ldv_in_de_pair( void )
 void
 ldv_out_de_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of disable/enable nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of disable/enable nesting.*/
    --ldv_inside_de_pair;
 }
 
@@ -64,7 +64,7 @@ ldv_out_de_pair( void )
 void
 ldv_in_sr_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of save/restore nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of save/restore nesting.*/
    ++ldv_inside_sr_pair;
 }
 
@@ -72,7 +72,7 @@ ldv_in_sr_pair( void )
 void
 ldv_out_sr_pair( void )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of save/restore nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of save/restore nesting.*/
    --ldv_inside_sr_pair;
 }
 

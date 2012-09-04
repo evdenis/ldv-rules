@@ -39,25 +39,25 @@ ldv_check_final_state( void )
 
 around: define( local_irq_disable() )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of irq_disable nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of irq_disable nesting.*/
    ++ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_enable() )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of irq_disable nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
    --ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_save(flags) )
 {
-   /* LDV_COMMENT_CHANGE_STATE Increase the level of irq_disable nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of irq_disable nesting.*/
    ++ldv_interrupts_disable_nested
 }
 
 around: define( local_irq_restore(flags) )
 {
-   /* LDV_COMMENT_CHANGE_STATE Decrease the level of irq_disable nesting.*/
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
    --ldv_interrupts_disable_nested
 }
 
