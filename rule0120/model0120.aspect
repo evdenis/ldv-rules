@@ -1,15 +1,7 @@
-@include "../ldv.aspect"
-
 before: file("$this")
 {
 
-// It is not possible to include ldv.h
-// This is a bug and should be fixed.
-// #include "../ldv.h"
-// Workaround:
-int ldv_undef_int( void );
-void *ldv_undef_ptr( void );
-//
+#include <verifier/rcv.h>
 
 extern int ldv_rcu_nested;
 extern int ldv_rcu_bh_nested;
@@ -115,7 +107,7 @@ around: define( srcu_dereference(p,sp) )
 
 new: file(LDV_COMMON_MODEL)
 {
-#include <ldv.h>
+#include <verifier/rcv.h>
 
 /* LDV_COMMENT_MODEL_STATE Indicates the level of rcu_lock nesting.*/
 int ldv_rcu_nested = 0;
