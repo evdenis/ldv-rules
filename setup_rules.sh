@@ -10,7 +10,7 @@ source "$util"  || { echo "Can't read util.sh file." 2>&1; exit 1; }
 loadlibrary io out sudo
 
 LDV_DIR=${LDV_DIR:-"/opt/ldv/"}
-kr_dir="${LDV_DIR}/kernel-rules/files/"
+kr_dir="${LDV_DIR}/kernel-rules/models/"
 
 check_dir kr_dir || { error "Please set up LDV_DIR variable."; exit 1; }
 
@@ -33,7 +33,7 @@ doc = XML::Parser.file(filename).parse
 XML::Parser.file('./model-db.xml').parse.find('/model-db/model').each { |node|
 	#node.find_first('description').content = IO.readlines( 'rule' + node.find_first('rule').content + '/DESCRIPTION', 'r').to_s
 	node.find('files/*').each { |file|
-		file.content = './files/' + file.content
+		file.content = './models/' + file.content
 	}
 	doc.find("/model-db/model[@id='" + node['id'] + "']").each { |r| r.remove! }
 	doc.root << doc.import(node)
