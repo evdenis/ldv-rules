@@ -49,8 +49,13 @@ void ldv_spin_lock_TEMPLATE(spinlock_t *lock)
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_trylock') Checks the context, increments the counter.*/
 int ldv_spin_trylock_TEMPLATE(spinlock_t *lock)
 {
-   __ldv_lock_in_interrupt();
-   __ldv_lock_in_process();
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      __ldv_lock_in_process();
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_nested') Checks the context, increments the counter.*/
@@ -77,8 +82,13 @@ void ldv_spin_lock_bh_TEMPLATE(spinlock_t *lock)
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_trylock_bh') Checks the context, increments the counter.*/
 int ldv_spin_trylock_bh_TEMPLATE(spinlock_t *lock)
 {
-   __ldv_lock_in_interrupt();
-   __ldv_lock_in_process();
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      __ldv_lock_in_process();
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_irq') Increments the counter only in interrupt context.*/
@@ -90,7 +100,12 @@ void ldv_spin_lock_irq_TEMPLATE(spinlock_t *lock)
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_trylock_irq') Increments the counter only in interrupt context.*/
 int ldv_spin_trylock_irq_TEMPLATE(spinlock_t *lock)
 {
-   __ldv_lock_in_interrupt();
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_irqsave') Increments the counter only in interrupt context.*/
@@ -102,7 +117,12 @@ void ldv_spin_lock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_trylock_irqsave') Increments the counter only in interrupt context.*/
 int ldv_spin_trylock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 {
-   __ldv_lock_in_interrupt();
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_lock_irqsave') Increments the counter only in interrupt context.*/
@@ -114,8 +134,14 @@ void ldv_spin_lock_irqsave_nested_TEMPLATE(spinlock_t *lock, unsigned long flags
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_atomic_dec_and_lock') Checks the context, increments the counter.*/
 int ldv_atomic_dec_and_lock_TEMPLATE(spinlock_t *lock, atomic_t *atomic)
 {
-   __ldv_lock_in_interrupt();
-   __ldv_lock_in_process();
+   --atomic;
+   if ( atomic == 0 ) {
+      __ldv_lock_in_interrupt();
+      __ldv_lock_in_process();
+      return 1;
+   } else {
+      return 0;
+   }  
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_disable') Increments the level of irq_disable nesting.*/
