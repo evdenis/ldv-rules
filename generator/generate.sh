@@ -388,31 +388,39 @@ aspects="$(mktemp)"
 #Don't try to implement this codeblock(x3) as functions. It will not work
 #because of the bash bug.
 (
-   echo -n "before:" >> "${aspects}.1"
-   for func in $(intersect "$graph" "$export_names")
-   do
-      while read i
+   func_list=$(intersect "$graph" "$export_names")
+   if [[ $(echo $func_list | wc -w) -ne 0 ]]
+   then
+      echo -n "before:" >> "${aspects}.1"
+      for func in $func_list
       do
-         echo -e "\t|| call( $(echo -n "$i") )" >> "${aspects}.1"
-      done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
-   done
-   perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*call\s*\()//m; print $file;' "${aspects}.1"
-   echo -e "{\n   /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function.*/\n   ldv_check();\n}\n" >> "${aspects}.1"
+         while read i
+         do
+            echo -e "\t|| call( $(echo -n "$i") )" >> "${aspects}.1"
+         done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$export_definitions" )
+      done
+      perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*call\s*\()//m; print $file;' "${aspects}.1"
+      echo -e "{\n   /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function.*/\n   ldv_check();\n}\n" >> "${aspects}.1"
+   fi
 )&
 
 if [[ "$generation" == 'full' ]]
 then
    (
-      echo -n "before:" >> "${aspects}.2"
-      for func in $(intersect "$graph" "$inline_names")
-      do
-         while read i
+      func_list=$(intersect "$graph" "$inline_names")
+      if [[ $(echo $func_list | wc -w) -ne 0 ]]
+      then
+         echo -n "before:" >> "${aspects}.2"
+         for func in $func_list
          do
-            echo -e "\t|| execution( $(echo -n "$i") )" >> "${aspects}.2"
-         done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
-      done
-      perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
-      echo -e "{\n   /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function.*/\n   ldv_check();\n}\n" >> "${aspects}.2"
+            while read i
+            do
+               echo -e "\t|| execution( $(echo -n "$i") )" >> "${aspects}.2"
+            done < <( grep -e "[^[:alnum:]_]$func[[:space:]]*(" "$inline_definitions" )
+         done
+         perl -i -e 'undef $/; my $file=<>; $file =~ s/\t\|\|(?=\s*execution\s*\()//m; print $file;' "${aspects}.2"
+         echo -e "{\n   /* LDV_COMMENT_MODEL_FUNCTION_CALL Call core model function.*/\n   ldv_check();\n}\n" >> "${aspects}.2"
+      fi
    )&
 
    #Latter generation scheme doesn't work for macros.
@@ -430,7 +438,10 @@ fi
 
 wait
 
-cat "${aspects}."[123] | tee -a "${model[@]}" > /dev/null
+if [[ -r "${aspects}.1" ]]
+then
+   cat "${aspects}."[123] | tee -a "${model[@]}" > /dev/null
+fi
 
 for i in "${!model[@]}"
 do
