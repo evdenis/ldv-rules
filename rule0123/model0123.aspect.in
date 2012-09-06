@@ -1,6 +1,8 @@
 before: file("$this")
 {
 
+#include <verifier/rcv.h>
+
 #define const
 
 extern void ldv_check( void );
@@ -11,36 +13,75 @@ new: file(LDV_COMMON_MODEL)
 
 #include <verifier/rcv.h>
 
+/* LDV_COMMENT_MODEL_STATE Indicates the level of spin_locks nesting.*/
+int ldv_spin_lock_nested = 0;
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for not holding spin lock.*/
 void
 ldv_check( void )
 {
-   ldv_assert( LDV_IN_INTERRUPT == 1 );
+   /* LDV_COMMENT_ASSERT might_sleep functions should not be called under spin locks.*/
+   ldv_assert( ldv_spin_lock_nested == 0 );
 }
 
 }
 
-around: execution( static inline void spin_lock( spinlock_t *lock ) )
+
+around: execution( static inline void spin_lock(..) )
+	|| execution( static inline void spin_lock_bh(..) )
+	|| execution( static inline void spin_lock_irq(..) )
 {
+  ++ldv_spin_lock_nested;
 }
 
-around: execution( static inline void spin_unlock( spinlock_t *lock ) )
+around: execution( static inline int spin_trylock(..) )
+	|| execution( static inline int spin_trylock_bh(..) )
+	|| execution( static inline int spin_trylock_irq(..) )
 {
+   if ( ldv_undef_int() > 0 ) {
+      ++ldv_spin_lock_nested;
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
-around: execution( static inline void spin_lock_irq( spinlock_t *lock ) )
+around: execution( static inline void spin_unlock(..) )
+	|| execution( static inline void spin_unlock_bh(..) )
+	|| execution( static inline void spin_unlock_irq(..) )
+	|| execution( static inline void spin_unlock_irqrestore(..) )
 {
+   --ldv_spin_lock_nested;
 }
 
-around: execution( static inline void spin_unlock_irq( spinlock_t *lock ) )
+around: define( spin_lock_irqsave(lock,flags) )
 {
+   ++ldv_spin_lock_nested;
 }
 
-around: define( spin_lock_irqsave(lock, flags) )
+around: define( spin_lock_irqsave_nested(lock,flags,subclass) )
 {
+   ++ldv_spin_lock_nested;
 }
 
-around: define( spin_unlock_irqrestore(lock, flags) )
+around: define( spin_lock_nest_lock(lock,nest_lock) )
 {
+   ++ldv_spin_lock_nested;
+}
+
+around: define( spin_lock_nested(lock,subclass) )
+{
+   ++ldv_spin_lock_nested;
+}
+
+around: define( spin_trylock_irqsave(lock,flags) )
+{
+   if ( ldv_undef_int() > 0 ) {
+      ++ldv_spin_lock_nested;
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
 
