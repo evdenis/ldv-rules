@@ -1,0 +1,166 @@
+[% PROCESS rerouter.tmpl ~%]
+
+before: file ("$this")
+{
+#include <linux/kernel.h>
+#include <linux/spinlock.h>
+
+extern int LDV_IN_INTERRUPT;
+
+extern int ldv_lock_in_process_flag_TEMPLATE;
+extern int ldv_lock_in_interrupt_flag_TEMPLATE;
+
+/* LDV_COMMENT_MODEL_STATE Indicates the usage of lock in process context with enabled interrupts.*/
+int ldv_lock_in_process_flag_TEMPLATE = 0;
+/* LDV_COMMENT_MODEL_STATE Indicates the usage of lock in interrupt context.*/
+int ldv_lock_in_interrupt_flag_TEMPLATE = 0;
+
+/* LDV_COMMENT_MODEL_STATE Indicates whether interrupts disabled or enabled.*/
+int ldv_irq_disable_nesting = 0;
+
+#define __ldv_lock_in_interrupt()                                              \
+   do {                                                                        \
+      if ( LDV_IN_INTERRUPT == 2 ) {                                           \
+         /* LDV_COMMENT_CHANGE_STATE usage of the lock in interrupt context.*/ \
+         ++ldv_lock_in_interrupt_flag_TEMPLATE;                                \
+      }                                                                        \
+   } while(0)
+
+#define __ldv_lock_in_process()                                               \
+   do {                                                                       \
+      if ( ( LDV_IN_INTERRUPT == 1 ) && ( ldv_irq_disable_nesting <= 0 ) ) {  \
+         /* LDV_COMMENT_CHANGE_STATE usage of the lock in process context.*/  \
+         ++ldv_lock_in_process_flag_TEMPLATE;                                 \
+      }                                                                       \
+   } while(0)
+}
+
+around: define(local_irq_disable(void))
+{
+   ++ldv_irq_disable_nesting
+}
+
+around: define(local_irq_enable(void))
+{
+   --ldv_irq_disable_nesting
+}
+
+around: define(local_irq_save(flags))
+{
+   ++ldv_irq_disable_nesting
+}
+
+around: define(ldv_local_irq_restore(flags))
+{
+   --ldv_irq_disable_nesting
+}
+
+around: execution( static inline void spin_lock(..) )
+        || execution( static inline void spin_lock_bh(..) )
+{
+   __ldv_lock_in_interrupt();
+   __ldv_lock_in_process();
+}
+
+around: execution( static inline void spin_lock_irq(..) )
+{
+   __ldv_lock_in_interrupt();
+}
+
+around: execution( static inline int spin_trylock(..) )
+        || execution( static inline int spin_trylock_bh(..) )
+{
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      __ldv_lock_in_process();
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
+around: execution( static inline int spin_trylock_irq(..) )
+{
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
+around: define( spin_lock_irqsave(lock, flags) )
+{
+   __ldv_lock_in_interrupt()
+}
+
+around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
+{
+   __ldv_lock_in_interrupt()
+}
+
+around: define( spin_lock_nest_lock(lock, nest_lock) )
+{
+   ({
+      __ldv_lock_in_interrupt();
+      __ldv_lock_in_process();
+   })
+}
+
+around: define( spin_lock_nested(lock, subclass) )
+{
+   ({
+      __ldv_lock_in_interrupt();
+      __ldv_lock_in_process();
+   })
+}
+
+around: define( spin_trylock_irqsave(lock, flags) )
+{
+   if ( ldv_undef_int() > 0 ) {
+      __ldv_lock_in_interrupt();
+      1;
+   } else {
+      0;
+   }
+}
+
+around: define( atomic_dec_and_lock(atomic, lock) )
+{
+   ({
+      --atomic;
+      if ( atomic == 0 ) {
+         __ldv_lock_in_interrupt();
+         __ldv_lock_in_process();
+         1;
+      } else {
+         0;
+      }
+   })
+}
+
+new: file(LDV_COMMON_MODEL)
+{
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks for usage of the same lock in different contexts.*/
+void ldv_check_final_state(void)
+{
+   [% # Initialize all model state variables at the beginning.
+      FOREACH sign = signs; PROCESS make_human_sign %]
+   /* LDV_COMMENT_ASSERT If you use same lock in interrupt context (e.g. interrupt handler) and in process context, then in the latter case interrupts (maybe just one line) should be disabled.*/
+   ldv_assert( ( ldv_lock_in_interrupt_flag[% sign_id %] == 0 ) ||  ( ldv_lock_in_process_flag[% sign_id%] == 0 ) );
+   [% END %]
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_initialize') Initialization of lock variables.*/
+void ldv_initialize(void)
+{
+   [% # Initialize all model state variables at the beginning.
+      FOREACH sign = signs; PROCESS make_human_sign %]
+   ldv_lock_in_process_flag[% sign_id %] = 0;
+   ldv_lock_in_interrupt_flag[% sign_id %] = 0;
+   [% END %]
+}
+
+}
+

@@ -39,7 +39,6 @@
       </files>
       <hints></hints>
    </model>
-
    <model id="116">
       <rule>0116</rule>
       <status>public</status>
@@ -61,6 +60,22 @@
       <files>
          <common>./rule0116/model0116.c</common>
          <config>./rule0116/model0116-config.h</config>
+      </files>
+   </model>
+   <model id="116_a">
+      <rule>0116</rule>
+      <status>public</status>
+      <kind>aspect</kind>
+      <error>LDV_ERROR</error>
+      <engine>blast</engine>
+      <description></description>
+      <hints></hints>
+      <files>
+         <aspect generated-by="rerouter">
+            <template>./rule0116/model0116.tmpl</template>
+            <arg_sign>SIMPLE_ID</arg_sign>
+         </aspect>
+         <config>./config-tracers.h</config>
       </files>
    </model>
    <model id="117">
