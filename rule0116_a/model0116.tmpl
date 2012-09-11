@@ -20,12 +20,12 @@ extern void ldv_lock_in_interrupt[% sign_id %](void);
 }
 
 
-around: define( local_irq_disable(void) )
+around: define( local_irq_disable() )
 {
    ++ldv_irq_disable_nesting
 }
 
-around: define( local_irq_enable(void) )
+around: define( local_irq_enable() )
 {
    --ldv_irq_disable_nesting
 }
