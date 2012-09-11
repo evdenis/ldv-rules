@@ -5,6 +5,7 @@ before: file("$this")
 
 #define const
 
+extern int ldv_spin_lock_nested;
 extern void ldv_check( void );
 }
 
