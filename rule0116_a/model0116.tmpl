@@ -7,6 +7,10 @@ before: file ("$this")
 
 extern int LDV_IN_INTERRUPT;
 
+extern void __ldv_check_all(spinlock_t *lock);
+extern void __ldv_check_interrupt(spinlock_t *lock);
+
+
 [% # Generate model function prototypes.
    FOREACH sign = signs; PROCESS make_human_sign %]
 extern void ldv_lock_in_process[% sign_id %](void);
@@ -36,20 +40,20 @@ around: define( ldv_local_irq_restore(flags) )
    --ldv_irq_disable_nesting
 }
 
-around: execution( static inline void spin_lock(..) )
-        || execution( static inline void spin_lock_bh(..) )
+after: call( static inline void spin_lock(..) )
+       || call( static inline void spin_lock_bh(..) )
 {
    ldv_lock_in_interrupt[% arg_sign(1) %]();
    ldv_lock_in_process[% arg_sign(1) %]();
 }
 
-around: execution( static inline void spin_lock_irq(..) )
+after: call( static inline void spin_lock_irq(..) )
 {
    ldv_lock_in_interrupt[% arg_sign(1) %]();
 }
 
-around: execution( static inline int spin_trylock(..) )
-        || execution( static inline int spin_trylock_bh(..) )
+after: call( static inline int spin_trylock(..) )
+       || call( static inline int spin_trylock_bh(..) )
 {
    if ( ldv_undef_int() > 0 ) {
       ldv_lock_in_interrupt[% arg_sign(1) %]();
@@ -60,7 +64,7 @@ around: execution( static inline int spin_trylock(..) )
    }
 }
 
-around: execution( static inline int spin_trylock_irq(..) )
+after: call( static inline int spin_trylock_irq(..) )
 {
    if ( ldv_undef_int() > 0 ) {
       ldv_lock_in_interrupt[% arg_sign(1) %]();
@@ -68,38 +72,43 @@ around: execution( static inline int spin_trylock_irq(..) )
    } else {
       return 0;
    }
+}
+
+after: call( void __ldv_check_all(..) )
+{
+   ldv_lock_in_interrupt[% arg_sign(1) %]();
+   ldv_lock_in_process[% arg_sign(1) %]();
+}
+
+after: call( void __ldv_check_interrupt(..) )
+{
+   ldv_lock_in_interrupt[% arg_sign(1) %]();
 }
 
 around: define( spin_lock_irqsave(lock, flags) )
 {
-   ldv_lock_in_interrupt[% arg_sign(1) %]()
+   __ldv_check_interrupt(lock);
 }
 
 around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
 {
-   ldv_lock_in_interrupt[% arg_sign(1) %]()
+   __ldv_check_interrupt(lock);
 }
 
 around: define( spin_lock_nest_lock(lock, nest_lock) )
 {
-   ({
-      ldv_lock_in_interrupt[% arg_sign(1) %]();
-      ldv_lock_in_process[% arg_sign(1) %]();
-   })
+   __ldv_check_all(lock);
 }
 
 around: define( spin_lock_nested(lock, subclass) )
 {
-   ({
-      ldv_lock_in_interrupt[% arg_sign(1) %]();
-      ldv_lock_in_process[% arg_sign(1) %]();
-   })
+   __ldv_check_all(lock);
 }
 
 around: define( spin_trylock_irqsave(lock, flags) )
 {
    if ( ldv_undef_int() > 0 ) {
-      ldv_lock_in_interrupt[% arg_sign(1) %]();
+      __ldv_check_interrupt(lock);
       1;
    } else {
       0;
@@ -111,8 +120,7 @@ around: define( atomic_dec_and_lock(atomic, lock) )
    ({
       --atomic;
       if ( atomic == 0 ) {
-         ldv_lock_in_interrupt[% arg_sign(1) %]();
-         ldv_lock_in_process[% arg_sign(1) %]();
+         __ldv_check_all(lock);
          1;
       } else {
          0;
