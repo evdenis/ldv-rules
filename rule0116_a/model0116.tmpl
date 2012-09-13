@@ -2,10 +2,12 @@
 
 before: file ("$this")
 {
+#include <verifier/rcv.h>
+
+extern int ldv_irq_disable_nesting;
+
 #include <linux/kernel.h>
 #include <linux/spinlock.h>
-
-extern int LDV_IN_INTERRUPT;
 
 extern void __ldv_check_all(spinlock_t *lock);
 extern void __ldv_check_interrupt(spinlock_t *lock);
@@ -130,13 +132,18 @@ around: define( atomic_dec_and_lock(atomic, lock) )
 
 new: file(LDV_COMMON_MODEL)
 {
+
+#include <verifier/rcv.h>
+
+extern int LDV_IN_INTERRUPT;
+
+/* LDV_COMMENT_MODEL_STATE Indicates whether interrupts disabled or enabled.*/
+int ldv_irq_disable_nesting = 0;
+
 [% # Generate model state variables and functions.
    FOREACH sign = signs; PROCESS make_human_sign %]
 static int ldv_lock_in_process_flag[% sign_id %];
 static int ldv_lock_in_interrupt_flag[% sign_id %];
-
-/* LDV_COMMENT_MODEL_STATE Indicates whether interrupts disabled or enabled.*/
-int ldv_irq_disable_nesting = 0;
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_lock_in_interrupt[% sign_id %]') Checks for interrupt context.*/
 void ldv_lock_in_interrupt[% sign_id %](void)
