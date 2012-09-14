@@ -4,7 +4,8 @@ before: file ("$this")
 {
 #include <verifier/rcv.h>
 
-extern int ldv_irq_disable_nesting;
+extern void ldv_irq_disable_inc( void );
+extern void ldv_irq_disable_dec( void );
 
 #include <linux/kernel.h>
 #include <linux/spinlock.h>
@@ -24,22 +25,22 @@ extern void ldv_lock_in_interrupt[% sign_id %](void);
 
 around: define( local_irq_disable() )
 {
-   ++ldv_irq_disable_nesting
+   ldv_irq_disable_inc()
 }
 
 around: define( local_irq_enable() )
 {
-   --ldv_irq_disable_nesting
+   ldv_irq_disable_dec()
 }
 
 around: define( local_irq_save(flags) )
 {
-   ++ldv_irq_disable_nesting
+   ldv_irq_disable_inc()
 }
 
 around: define( ldv_local_irq_restore(flags) )
 {
-   --ldv_irq_disable_nesting
+   ldv_irq_disable_dec()
 }
 
 after: call( static inline void spin_lock(..) )
@@ -89,32 +90,34 @@ after: call( void __ldv_check_interrupt(..) )
 
 around: define( spin_lock_irqsave(lock, flags) )
 {
-   __ldv_check_interrupt(lock);
+   __ldv_check_interrupt(lock)
 }
 
 around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
 {
-   __ldv_check_interrupt(lock);
+   __ldv_check_interrupt(lock)
 }
 
 around: define( spin_lock_nest_lock(lock, nest_lock) )
 {
-   __ldv_check_all(lock);
+   __ldv_check_all(lock)
 }
 
 around: define( spin_lock_nested(lock, subclass) )
 {
-   __ldv_check_all(lock);
+   __ldv_check_all(lock)
 }
 
 around: define( spin_trylock_irqsave(lock, flags) )
 {
-   if ( ldv_undef_int() > 0 ) {
-      __ldv_check_interrupt(lock);
-      1;
-   } else {
-      0;
-   }
+   ({
+      if ( ldv_undef_int() > 0 ) {
+         __ldv_check_interrupt(lock);
+         1;
+      } else {
+         0;
+      }
+   })
 }
 
 around: define( atomic_dec_and_lock(atomic, lock) )
@@ -139,6 +142,22 @@ extern int LDV_IN_INTERRUPT;
 
 /* LDV_COMMENT_MODEL_STATE Indicates whether interrupts disabled or enabled.*/
 int ldv_irq_disable_nesting = 0;
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_irq_disable_inc') Entry in irq_disable/irq_enable section.*/
+void
+ldv_irq_disable_inc( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of irq_disable nesting.*/
+   ++ldv_irq_disable_nesting;
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_irq_disable_dec') Exit from irq_disable/irq_enable section.*/
+void
+ldv_irq_disable_dec( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
+   --ldv_irq_disable_nesting;
+}
 
 [% # Generate model state variables and functions.
    FOREACH sign = signs; PROCESS make_human_sign %]
