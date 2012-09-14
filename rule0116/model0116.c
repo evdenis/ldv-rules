@@ -144,27 +144,31 @@ int ldv_atomic_dec_and_lock_TEMPLATE(spinlock_t *lock, atomic_t *atomic)
    }  
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_disable') Increments the level of irq_disable nesting.*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_disable') Entry in irq_disable/irq_enable section.*/
 void ldv_local_irq_disable(void)
 {
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of irq_disable nesting.*/
    ++ldv_irq_disable_nesting;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_enable') Decrements the level of irq_disable nesting.*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_enable') Exit from irq_disable/irq_enable section.*/
 void ldv_local_irq_enable(void)
 {
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
    --ldv_irq_disable_nesting;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_save') Increments the level of irq_disable nesting.*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_save') Entry in irq_disable/irq_enable section.*/
 void ldv_local_irq_save(unsigned long flags)
 {
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of irq_disable nesting.*/
    ++ldv_irq_disable_nesting;
 }
 
-/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_restore') Decrements the level of irq_disable nesting.*/
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_local_irq_restore') Exit from irq_disable/irq_enable section.*/
 void ldv_local_irq_restore(unsigned long flags)
 {
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
    --ldv_irq_disable_nesting;
 }
 
