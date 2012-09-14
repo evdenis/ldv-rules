@@ -3,11 +3,6 @@ before: file("$this")
 
 #include <verifier/rcv.h>
 
-extern int ldv_rcu_nested;
-extern int ldv_rcu_bh_nested;
-extern int ldv_rcu_sched_nested;
-extern int ldv_srcu_nested;
-
 extern void ldv_check_rcu_unlock( void );
 extern void ldv_check_rcu_dereference( void );
 
@@ -19,17 +14,28 @@ extern void ldv_check_rcu_sched_dereference( void );
 
 extern void ldv_check_srcu_unlock( void );
 extern void ldv_check_srcu_dereference( void );
+
+extern void ldv_rcu_inc( void );
+extern void ldv_rcu_bh_inc( void );
+extern void ldv_rcu_sched_inc( void );
+extern void ldv_srcu_inc( void );
+
+extern void ldv_rcu_dec( void );
+extern void ldv_rcu_bh_dec( void );
+extern void ldv_rcu_sched_dec( void );
+extern void ldv_srcu_dec( void );
+
 }
 
 
 around: execution( static inline void rcu_read_lock( void ) )
 {
-   ++ldv_rcu_nested;
+   ldv_rcu_inc();
 }
 
 around: execution( static inline void rcu_read_unlock( void ) )
 {
-   --ldv_rcu_nested;
+   ldv_rcu_dec();
    ldv_check_rcu_unlock();
 }
 
@@ -45,12 +51,12 @@ around: define( rcu_dereference(p) )
 /* rcu_bh */
 around: execution( static inline void rcu_read_lock_bh( void ) )
 {
-   ++ldv_rcu_bh_nested;
+   ldv_rcu_bh_inc();
 }
 
 around: execution( static inline void rcu_read_unlock_bh( void ) )
 {
-   --ldv_rcu_bh_nested;
+   ldv_rcu_bh_dec();
    ldv_check_rcu_bh_unlock();
 }
 
@@ -66,12 +72,12 @@ around: define( rcu_dereference_bh(p) )
 /* rcu_sched */
 around: execution( static inline void rcu_read_lock_sched( void ) )
 {
-   ++ldv_rcu_sched_nested;
+   ldv_rcu_sched_inc();
 }
 
 around: execution( static inline void rcu_read_unlock_sched( void ) )
 {
-   --ldv_rcu_sched_nested;
+    ldv_rcu_sched_dec();
     ldv_check_rcu_sched_unlock();
 }
 
@@ -87,13 +93,13 @@ around: define( rcu_dereference_sched(p) )
 /* srcu */
 around: execution( static inline int srcu_read_lock( struct srcu_struct *sp ) )
 {
-   ++ldv_srcu_nested;
+   ldv_srcu_inc();
    return ldv_undef_int();
 }
 
 around: execution( static inline void srcu_read_unlock( struct srcu_struct *sp, int idx ) )
 {
-   --ldv_srcu_nested;
+   ldv_srcu_dec();
    ldv_check_srcu_unlock();
 }
 
@@ -117,6 +123,74 @@ int ldv_rcu_bh_nested = 0;
 int ldv_rcu_sched_nested = 0;
 /* LDV_COMMENT_MODEL_STATE Indicates the level of srcu_lock nesting.*/
 int ldv_srcu_nested = 0;
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_rcu_inc') Entry in rcu_read_lock/unlock section.*/
+void
+ldv_rcu_inc( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of rcu_lock nesting.*/
+   ++ldv_rcu_nested;
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_rcu_dec') Exit from rcu_read_lock/unlock section.*/
+void
+ldv_rcu_dec( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of rcu_lock nesting.*/
+   --ldv_rcu_nested;
+}
+
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_rcu_bh_inc') Entry in rcu_read_lock_bh/unlock section.*/
+void
+ldv_rcu_bh_inc( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of rcu_read_lock_bh nesting.*/
+   ++ldv_rcu_bh_nested;
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_rcu_bh_dec') Exit from rcu_read_lock_bh/unlock section.*/
+void
+ldv_rcu_bh_dec( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of rcu_read_lock_bh nesting.*/
+   --ldv_rcu_bh_nested;
+}
+
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_rcu_sched_inc') Entry in rcu_read_lock_sched/unlock section.*/
+void
+ldv_rcu_sched_inc( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of rcu_read_lock_sched nesting.*/
+   ++ldv_rcu_sched_nested;
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_rcu_sched_dec') Exit from rcu_read_lock_sched/unlock section.*/
+void
+ldv_rcu_sched_dec( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of rcu_read_lock_sched nesting.*/
+   --ldv_rcu_sched_nested;
+}
+
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_srcu_inc') Entry in srcu_read_lock/unlock section.*/
+void
+ldv_srcu_inc( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Increments the level of srcu_read_lock nesting.*/
+   ++ldv_srcu_nested;
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_srcu_dec') Exit from srcu_read_lock/unlock section.*/
+void
+ldv_srcu_dec( void )
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of srcu_read_lock nesting.*/
+   --ldv_srcu_nested;
+}
+
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check_final_state') Checks that for each lock there is unlock.*/
 void
