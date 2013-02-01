@@ -43,6 +43,12 @@ around: define( ldv_local_irq_restore(flags) )
    ldv_irq_disable_dec()
 }
 
+around: execution( static inline void spin_unlock_irqrestore(..) )
+{
+   ldv_irq_disable_dec();
+}
+
+
 after: call( static inline void spin_lock(..) )
        || call( static inline void spin_lock_bh(..) )
 {
