@@ -172,6 +172,13 @@ void ldv_local_irq_restore(unsigned long flags)
    --ldv_irq_disable_nesting;
 }
 
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_unlock_irqrestore') Exit from irq_disable/irq_enable section.*/
+void ldv_spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags)
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
+   --ldv_irq_disable_nesting;
+}
+
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_initialize') Initialization of lock variables.*/
 void ldv_initialize_TEMPLATE(void)
 {
