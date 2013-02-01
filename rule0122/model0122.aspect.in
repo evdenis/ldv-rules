@@ -23,7 +23,7 @@ void
 ldv_in_interrupts_disable_inc( void )
 {
    /* LDV_COMMENT_CHANGE_STATE Increments the level of irq_disable nesting.*/
-   ++ldv_interrupts_disable_nested
+   ++ldv_interrupts_disable_nested;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_interrupts_disable_dec') Exit from irq_disable/irq_enable section.*/
@@ -31,7 +31,7 @@ void
 ldv_in_interrupts_disable_dec( void )
 {
    /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
-   --ldv_interrupts_disable_nested
+   --ldv_interrupts_disable_nested;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for enabled interrupts.*/
