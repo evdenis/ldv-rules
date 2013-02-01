@@ -72,6 +72,11 @@ around: define( local_irq_restore(flags) )
    ldv_in_interrupts_disable_dec()
 }
 
+around: execution( static inline void spin_unlock_irqrestore(..) )
+{
+   ldv_in_interrupts_disable_dec();
+}
+
 
 around: define( might_sleep() )
 {
