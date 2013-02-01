@@ -5,6 +5,8 @@ ldir="${rdir}/scripts/lib/"
 
 util="${ldir}/util.sh"
 
+exclude='126\|137'
+
 source "$util"  || { echo "Can't read util.sh file." 2>&1; exit 1; }
 
 loadlibrary io out sudo
@@ -14,7 +16,7 @@ kr_dir="${LDV_DIR}/kernel-rules/models/"
 
 check_dir kr_dir || { error "Please set up LDV_DIR variable."; exit 1; }
 
-for i in $(find . -maxdepth 1 -type d -name 'rule*')
+for i in $(find . -maxdepth 1 -type d -name 'rule*'| grep -v "$exclude")
 do
 	act "Making copy of \"$i\" into kernel-rules dir" run_su cp -rv "'$i'" "'$kr_dir'" || exit 2
 done
