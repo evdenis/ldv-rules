@@ -1,0 +1,33 @@
+before: file("$this")
+{
+
+/* workaround for Cil bug */
+#define const
+
+extern void ldv_check( void );
+}
+
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include <verifier/rcv.h>
+
+extern int LDV_IN_INTERRUPT;
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for process context.*/
+void
+ldv_check( void )
+{
+   /* LDV_COMMENT_ASSERT schedule functions should not be called in interrupt handler(not threaded).*/
+   ldv_assert( LDV_IN_INTERRUPT == 1 );
+}
+
+}
+
+
+around: call( void schedule( void ) )
+{
+   ldv_check();
+}
+
