@@ -1,0 +1,13 @@
+kmalloc
+kzalloc
+
+set_bit
+
+readb
+readw
+readl
+
+writeb
+writew
+writel
+

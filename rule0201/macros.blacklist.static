@@ -1,0 +1,10 @@
+set_bit
+
+readb
+readw
+readl
+
+writeb
+writew
+writel
+

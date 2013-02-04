@@ -1,0 +1,33 @@
+before: file("$this")
+{
+
+/* workaround for Cil bug */
+#define const
+
+extern void ldv_check( void );
+}
+
+
+new: file(LDV_COMMON_MODEL)
+{
+
+#include <verifier/rcv.h>
+
+extern int LDV_IN_INTERRUPT;
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks for process context.*/
+void
+ldv_check( void )
+{
+   /* LDV_COMMENT_ASSERT Avoid using BUG() in interrupt context.*/
+   ldv_assert( LDV_IN_INTERRUPT == 1 );
+}
+
+}
+
+
+around: define( BUG() )
+{
+   ldv_check()
+}
+
