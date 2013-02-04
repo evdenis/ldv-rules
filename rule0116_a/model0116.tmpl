@@ -38,7 +38,7 @@ around: define( local_irq_save(flags) )
    ldv_irq_disable_inc()
 }
 
-around: define( ldv_local_irq_restore(flags) )
+around: define( local_irq_restore(flags) )
 {
    ldv_irq_disable_dec()
 }
