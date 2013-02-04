@@ -32,9 +32,25 @@ around: define( local_irq_restore(flags) )
    ldv_out_sr_pair()
 }
 
+around: define( spin_lock_irqsave(lock, flags) )
+{
+   ldv_in_sr_pair()
+}
+
 around: execution( static inline void spin_unlock_irqrestore(..) )
 {
    ldv_out_sr_pair();
+}
+
+around: execution( static inline void spin_lock_irq(..) )
+{
+   ldv_in_de_pair();
+}
+
+around: execution( static inline void spin_unlock_irq(..) )
+{
+   ldv_out_de_pair();
+   ldv_check();
 }
 
 new: file(LDV_COMMON_MODEL)
