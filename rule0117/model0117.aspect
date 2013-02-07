@@ -37,6 +37,11 @@ around: define( spin_lock_irqsave(lock, flags) )
    ldv_in_sr_pair()
 }
 
+around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
+{
+   ldv_in_sr_pair()
+}
+
 around: execution( static inline void spin_unlock_irqrestore(..) )
 {
    ldv_out_sr_pair();
