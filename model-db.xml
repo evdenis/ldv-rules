@@ -72,7 +72,7 @@
       <hints></hints>
       <files>
          <aspect generated-by="rerouter">
-            <template>./rule0116/model0116.tmpl</template>
+            <template>./rule0116_a/model0116.tmpl</template>
             <arg_sign>SIMPLE_ID</arg_sign>
          </aspect>
          <config>./config-tracers.h</config>
