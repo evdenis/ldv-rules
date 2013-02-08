@@ -14,18 +14,13 @@ around: define( local_irq_disable() )
 
 around: define( local_irq_enable() )
 {
-   ({
-      ldv_out_de_pair();
-      ldv_check();
-   })
+   ldv_out_de_pair()
 }
-
 
 around: define( local_irq_save(flags) )
 {
    ldv_in_sr_pair()
 }
-
 
 around: define( local_irq_restore(flags) )
 {
@@ -55,7 +50,6 @@ around: execution( static inline void spin_lock_irq(..) )
 around: execution( static inline void spin_unlock_irq(..) )
 {
    ldv_out_de_pair();
-   ldv_check();
 }
 
 new: file(LDV_COMMON_MODEL)
@@ -68,12 +62,23 @@ int ldv_inside_de_pair = 0;
 /* LDV_COMMENT_MODEL_STATE Indicates the level of local_irq_save/local_irq_restore nesting.*/
 int ldv_inside_sr_pair = 0;
 
+/* LDV_COMMENT_MODEL_STATE Indicates that irq_disable has been called.*/
+int ldv_d_flag = 0;
+/* LDV_COMMENT_MODEL_STATE Indicates that irq_save has been called.*/
+int ldv_s_flag = 0;
+
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_de_pair') Entry in disable/enable section.*/
 void
 ldv_in_de_pair( void )
 {
    /* LDV_COMMENT_CHANGE_STATE Increments the level of disable/enable nesting.*/
    ++ldv_inside_de_pair;
+   
+   ldv_assert( ldv_d_flag );
+   ldv_d_flag = 1;
+
+   ldv_assert( ldv_s_flag );
+   ldv_s_flag = 0;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_out_de_pair') Exit from disable/enable section.*/
@@ -82,6 +87,9 @@ ldv_out_de_pair( void )
 {
    /* LDV_COMMENT_CHANGE_STATE Decrements the level of disable/enable nesting.*/
    --ldv_inside_de_pair;
+   
+   ldv_d_flag = 0;
+   ldv_s_flag = 0;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_in_sr_pair') Entry in save/restore section.*/
@@ -90,6 +98,8 @@ ldv_in_sr_pair( void )
 {
    /* LDV_COMMENT_CHANGE_STATE Increments the level of save/restore nesting.*/
    ++ldv_inside_sr_pair;
+   ldv_d_flag = 0;
+   ldv_s_flag = 1;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_out_sr_pair') Exit from save/restore section.*/
@@ -98,6 +108,11 @@ ldv_out_sr_pair( void )
 {
    /* LDV_COMMENT_CHANGE_STATE Decrements the level of save/restore nesting.*/
    --ldv_inside_sr_pair;
+   
+   ldv_assert( ldv_d_flag );
+   ldv_d_flag = 0;
+   
+   ldv_s_flag = 0;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_check') Checks that the caller is outside enable/disable and save/restore sections.*/
