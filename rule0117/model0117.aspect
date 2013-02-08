@@ -1,5 +1,7 @@
 before: file("$this")
 {
+#include <verifier/rcv.h>
+
 extern void ldv_check( void );
 extern void ldv_in_de_pair( void );
 extern void ldv_out_de_pair( void );
@@ -35,6 +37,28 @@ around: define( spin_lock_irqsave(lock, flags) )
 around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
 {
    ldv_in_sr_pair()
+}
+
+around: define( spin_trylock_irqsave(lock, flags) )
+{
+   ({
+      if ( ldv_undef_int() > 0 ) {
+         ldv_in_sr_pair();
+         1;
+      } else {
+         0;
+      }
+   })
+}
+
+around: execution( static inline int spin_trylock_irq(..) )
+{
+   if ( ldv_undef_int() > 0 ) {
+      ldv_in_de_pair();
+      return 1;
+   } else {
+      return 0;
+   }
 }
 
 around: execution( static inline void spin_unlock_irqrestore(..) )
