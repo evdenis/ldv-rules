@@ -1,5 +1,8 @@
 before: file("$this")
 {
+
+#include <verifier/rcv.h>
+
 /* workaround for Cil bug */
 #define const
 
@@ -81,6 +84,29 @@ around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
 {
    ldv_in_interrupts_disable_inc()
 }
+
+around: define( spin_trylock_irqsave(lock, flags) )
+{
+   ({
+      if ( ldv_undef_int() > 0 ) {
+         ldv_in_interrupts_disable_inc();
+         1;
+      } else {
+         0;
+      }
+   })
+}
+
+around: execution( static inline int spin_trylock_irq(..) )
+{
+   if ( ldv_undef_int() > 0 ) {
+      ldv_in_interrupts_disable_inc();
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
 
 around: execution( static inline void spin_unlock_irqrestore(..) )
 {
