@@ -95,6 +95,7 @@ int ldv_spin_trylock_bh_TEMPLATE(spinlock_t *lock)
 void ldv_spin_lock_irq_TEMPLATE(spinlock_t *lock)
 {
    __ldv_lock_in_interrupt();
+   ++ldv_irq_disable_nesting;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_trylock_irq') Increments the counter only in interrupt context.*/
@@ -102,6 +103,7 @@ int ldv_spin_trylock_irq_TEMPLATE(spinlock_t *lock)
 {
    if ( ldv_undef_int() > 0 ) {
       __ldv_lock_in_interrupt();
+      ++ldv_irq_disable_nesting;
       return 1;
    } else {
       return 0;
@@ -112,6 +114,7 @@ int ldv_spin_trylock_irq_TEMPLATE(spinlock_t *lock)
 void ldv_spin_lock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 {
    __ldv_lock_in_interrupt();
+   ++ldv_irq_disable_nesting;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_trylock_irqsave') Increments the counter only in interrupt context.*/
@@ -119,6 +122,7 @@ int ldv_spin_trylock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 {
    if ( ldv_undef_int() > 0 ) {
       __ldv_lock_in_interrupt();
+      ++ldv_irq_disable_nesting;
       return 1;
    } else {
       return 0;
@@ -129,6 +133,7 @@ int ldv_spin_trylock_irqsave_TEMPLATE(spinlock_t *lock, unsigned long flags)
 void ldv_spin_lock_irqsave_nested_TEMPLATE(spinlock_t *lock, unsigned long flags, int subclass)
 {
    __ldv_lock_in_interrupt();
+   ++ldv_irq_disable_nesting;
 }
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_atomic_dec_and_lock') Checks the context, increments the counter.*/
@@ -174,6 +179,13 @@ void ldv_local_irq_restore(unsigned long flags)
 
 /* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_unlock_irqrestore') Exit from irq_disable/irq_enable section.*/
 void ldv_spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags)
+{
+   /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
+   --ldv_irq_disable_nesting;
+}
+
+/* LDV_COMMENT_MODEL_FUNCTION_DEFINITION(name='ldv_spin_unlock_irq') Exit from irq_disable/irq_enable section.*/
+void ldv_spin_unlock_irq(spinlock_t *lock)
 {
    /* LDV_COMMENT_CHANGE_STATE Decrements the level of irq_disable nesting.*/
    --ldv_irq_disable_nesting;
