@@ -48,21 +48,26 @@ around: execution( static inline void spin_unlock_irqrestore(..) )
    ldv_irq_disable_dec();
 }
 
+around: execution( static inline void spin_unlock_irq(..) )
+{
+   ldv_irq_disable_dec();
+}
 
-after: call( static inline void spin_lock(..) )
-       || call( static inline void spin_lock_bh(..) )
+around: execution( static inline void spin_lock(..) )
+       || execution( static inline void spin_lock_bh(..) )
 {
    ldv_lock_in_interrupt[% arg_sign(1) %]();
    ldv_lock_in_process[% arg_sign(1) %]();
 }
 
-after: call( static inline void spin_lock_irq(..) )
+around: execution( static inline void spin_lock_irq(..) )
 {
    ldv_lock_in_interrupt[% arg_sign(1) %]();
+   ldv_irq_disable_inc();
 }
 
-after: call( static inline int spin_trylock(..) )
-       || call( static inline int spin_trylock_bh(..) )
+around: execution( static inline int spin_trylock(..) )
+       || execution( static inline int spin_trylock_bh(..) )
 {
    if ( ldv_undef_int() > 0 ) {
       ldv_lock_in_interrupt[% arg_sign(1) %]();
@@ -73,10 +78,11 @@ after: call( static inline int spin_trylock(..) )
    }
 }
 
-after: call( static inline int spin_trylock_irq(..) )
+around: execution( static inline int spin_trylock_irq(..) )
 {
    if ( ldv_undef_int() > 0 ) {
       ldv_lock_in_interrupt[% arg_sign(1) %]();
+      ldv_irq_disable_inc();
       return 1;
    } else {
       return 0;
@@ -96,12 +102,18 @@ after: call( void __ldv_check_interrupt(..) )
 
 around: define( spin_lock_irqsave(lock, flags) )
 {
-   __ldv_check_interrupt(lock)
+   ({
+      __ldv_check_interrupt(lock);
+      ldv_irq_disable_inc();
+   })
 }
 
 around: define( spin_lock_irqsave_nested(lock, flags, subclass) )
 {
-   __ldv_check_interrupt(lock)
+   ({
+      __ldv_check_interrupt(lock);
+      ldv_irq_disable_inc();
+   })
 }
 
 around: define( spin_lock_nest_lock(lock, nest_lock) )
@@ -119,6 +131,7 @@ around: define( spin_trylock_irqsave(lock, flags) )
    ({
       if ( ldv_undef_int() > 0 ) {
          __ldv_check_interrupt(lock);
+         ldv_irq_disable_inc();
          1;
       } else {
          0;
