@@ -10,7 +10,7 @@ around: define(IRQF_ONESHOT)
 
 /* unsigned int irq, irq_handler_t handler, irq_handler_t thread_fn, unsigned long flags, const char *name, void *dev */
 before:
-   execution( static inline int request_threaded_irq(..) ) ||
+   call( static inline int request_threaded_irq(..) ) ||
    call( int request_threaded_irq(..) )
 {
    ldv_check( $arg2, $arg4 );
