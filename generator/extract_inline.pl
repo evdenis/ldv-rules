@@ -39,7 +39,7 @@ while ( $file =~
       (?<fdecl>
          static
          \s+
-         (:?__(:?always_)?)?inline(:?__)?
+         (?:__(?:always_)?)?inline(?:__)?
          \s+
          (?:
             \w*
