@@ -6,6 +6,7 @@ Second "Formalization of Correct Usage of Kernel Core API" project developed dur
 In [Google Summer of Code 2012](http://www.google-melange.com/gsoc/homepage/google/gsoc2012) Ph.D. student Denis Efremov managed by mentor Alexey Khoroshilov has successfully developed a project titled Formalization of Correct Usage of Kernel Core API for The Linux Foundation.
 
 Denis implemented 12 formal models for safety rules that help him to find a lot of bugs in Linux kernel drivers:
+
 1.  Enabling interrupts while in an interrupt handler (commits [1](http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=186e868786f97c8026f0a81400b451ace306b3a4), acked [2](https://lkml.org/lkml/2012/7/21/5))
 2.  might\_sleep functions in interrupt context (found the same results as less general variants of the given rule)
 3.  Spinlocks acquisition in process and interrupt contexts (5 suspicious drivers)
@@ -20,6 +21,7 @@ Denis implemented 12 formal models for safety rules that help him to find a lot 
 12. BUG like macros in interrupt context (rule highly depends on user purposes, thus it was rejected)
 
 To develop 5 of these rule models Denis has suggested a new approach of an automatic construction of a Linux kernel core model. This approach is based on a suggestion if some program interface may invoke directly or indirectly some specific program interface (like might\_sleep macro) then it can be marked respectively (e.g. as might\_sleep interface). The approach was implemented in the following way:
+
 1.  Creates list of program interfaces used by some Linux kernel module, in particular by a driver.
 2.  Linux kernel source code is analyzed with help of cscope tool.
 3.  On the basis of a generated cscope base a call graph containing program interfaces of interest (e.g. might\_sleep macro) is created.
