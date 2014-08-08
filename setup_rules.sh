@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#To use script setup_rules you should define LDV_DIR variable with path to the LDV installation directory.
+
 rdir="$(readlink -f $(dirname $0))"
 ldir="${rdir}/scripts/lib/"
 
